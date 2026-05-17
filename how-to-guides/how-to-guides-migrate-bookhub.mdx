@@ -1,9 +1,9 @@
 ---
 title: 'Migrate BookHub guide from v1 to v2'
-description: 'Instructions for migrating from BookHub v1 to v2.'
+description: 'Update your code for BookHub Publisher API v2, covering new fields and sorting changes.'
 ---
 
-This guide shows how to migrate from BookHub v1 to v2.
+This guide provides step-by-step instructions to migrate your code from BookHub Publisher API v1 to v2. The main changes include the addition of the `hitCount` field in book details and the removal of title sorting in the `GET /books` endpoint. Follow these steps to update your code and take advantage of the new features in v2.
 
 ## Step 1: Update base URLs
 
@@ -21,7 +21,7 @@ https://api.bookhub.com/api/v2/books
 
 ## Step 2: Handle the `hitCount` field
 
-If you're retrieving individual books, your code will now receive the `hitCount` field.
+`hitCount` is now included when loading individual books. If you want to track how many times a book has been viewed, you can use this field instead of making separate analytics API calls.
 
 ### Python example
 
@@ -52,7 +52,7 @@ response = requests.get(f"{BASE_URL}/v1/books?sort=title&order=asc")
 response = requests.get(f"{BASE_URL}/v2/books?sort=createdDate&order=desc")
 ```
 
-#### Option B: Implement client-side sorting
+### Option B: Implement client-side sorting
 
 ```python
 # Fetch all books
@@ -65,7 +65,7 @@ sorted_books = sorted(books, key=lambda x: x['title'].lower())
 
 ## Step 4: Update error handling
 
-Be prepared to handle the new error when title sorting is attempted:
+Prepare to handle the new error for title sorting:
 
 ```python
 import requests

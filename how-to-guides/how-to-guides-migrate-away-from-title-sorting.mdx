@@ -1,9 +1,7 @@
 ---
 title: 'Migrate away from title sorting'
-description: 'Learn how to migrate away from title sorting.'
+description: 'Update your code to stop using title sorting in BookHub Publisher API v2. Use date sorting or client-side sorting instead.'
 ---
-
-This guide shows how to migrate from title sortiing in v1 to v2.
 
 ## Step 1: Audit your codebase for `sort=title` parameters
 
@@ -27,4 +25,7 @@ all_books = get_books()
 sorted_books = sorted(all_books, key=lambda x: x['title'])
 ```
 
-#Step 3: Update documentation and inform your team
+## Step 3: Update documentation and inform your team
+
+* Update any internal documentation that references title sorting.
+* Communicate the change to your team to ensure everyone is aware of the new sorting approach.

@@ -1,32 +1,25 @@
 ---
 title: 'Release notes'
-description: 'See the latest updates and changes to the BookHub Publisher API.'
+description: 'Get the latest BookHub Publisher API updates and improvements here.'
 ---
 
-# Release notes
+## Version 2.0 — January 2, 2026
 
-Stay up to date with the latest changes and improvements to the BookHub Publisher API. Below are the release notes for version 2.0, which includes new features, enhancements, and important information about the API.
+### New features
 
-## Hit count analytics (new feature)
+#### Hit count analytics
 
-The most significant addition in v2 is the `hitCount` field on individual book retrievals. This provides publishers with basic visibility analytics.
+The `hitCount` field now shows how many times each book's detail page has been requested via the API, providing publishers with simple visibility into analytics.
 
-### What is `hitCount`?
+The `hitCount` field tracks the total number of API requests to a book's detail page. Use this metric to accurately gauge interest in specific titles. For example:
 
-The `hitCount` field tracks how many times a specific book's detail page has been accessed via the API. This metric helps publishers:
+* Identify trending books before they become bestsellers.
+* Measure marketing effectiveness by tracking post-campaign views.
+* Make data-driven decisions about inventory and pricing.
 
-- **Gauge interest** in specific titles
-- **Identify trending books** before they become bestsellers.
-- **Measure marketing effectiveness** by post-campaign views.
-- **Make data-driven decisions** about inventory and pricing.
+**Endpoint:** `GET /v2/books/{bookId}`
 
-### How it works
-
-```http
-GET /v2/books/{bookId}
-```
-
-#### Response includes
+**Response example:**
 
 ```json
 {
@@ -35,18 +28,43 @@ GET /v2/books/{bookId}
     "bookId": "abc123",
     "title": "The Great Adventure",
     "author": "Jane Smith",
-    "hitCount": 1247,
-    ...
+    "hitCount": 1247
   }
 }
 ```
 
-### Important notes
+**Notes:**
 
-- `hitCount` is **read-only** and automatically incremented.
-- The count increments each time the GET endpoint is accessed.
+- `hitCount` is read-only and automatically incremented each time the endpoint is accessed.
 - The initial value for new books is `0`.
-- The field is **only available in v2** (not in v1).
-- The count is per book and persists throughout the book’s lifetime.
+- Available in v2 only — not supported in v1.
+- The count is per book and persists throughout the book's lifetime.
+
+#### Delete a book
+
+Publishers can now permanently remove inactive books from the BookHub marketplace, preventing them from appearing in all future queries.
+
+**Endpoint:** `DELETE /books/{bookId}`
+
+**Notes:**
+
+- Only `INACTIVE` books can be deleted.
+- This operation cannot be undone.
+- Active books must be deactivated before deletion.
+- Returns `204 No Content` on success.
+
+### Breaking changes
+
+#### Title sorting removed from `GET /books`
+
+The `GET /v2/books` endpoint no longer accepts the `sort=title` parameter for sorting results by title.
+
+To migrate, replace `sort=title` with `sort=createdDate`. For step-by-step migration instructions, see [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting).
 
 ---
+
+## Version 1.0 — Initial release
+
+The BookHub Publisher API v1 introduced programmatic management of book inventory on the BookHub marketplace, including endpoints for creating, retrieving, and managing books.
+
+For details on migrating from v1 to v2, see [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub).

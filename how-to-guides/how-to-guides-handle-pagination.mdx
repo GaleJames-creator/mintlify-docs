@@ -3,7 +3,7 @@ title: 'Handle pagination'
 description: 'Learn how to correctly handle pagination for the BookHub API.'
 ---
 
-This guide explains how to paginate the results for the BookHub API when fetching all books.
+This guide explains how to paginate results when fetching all books from the BookHub API. The API uses a standard pagination approach with `page` and `limit` query parameters. Here's how to implement it:
 
 ```python
 def fetch_all_books(base_url, token):

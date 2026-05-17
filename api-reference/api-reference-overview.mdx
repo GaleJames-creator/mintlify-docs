@@ -1,124 +1,39 @@
 ---
-title: BookHub Publisher API reference
-description: Comprehensive reference for the BookHub Publisher API, detailing endpoints, request/response formats, and authentication methods.
+title: 'BookHub Publisher API reference'
+description: 'An overview of the BookHub Publisher API, including versioning, authentication, and available endpoints.'
 ---
 
-# BookHub Publisher API reference
+The BookHub Publisher API enables programmatic management of book inventory on the BookHub marketplace. This reference covers the available endpoints, request and response formats, and error handling.
 
-Welcome to the BookHub Publisher API Reference. This documentation provides detailed information about the endpoints, request and response formats, authentication methods, and error handling for the BookHub Publisher API.
+## Versioning
+
+The API uses URI path-based versioning (see also [Versioning](/reference/reference-breaking-changes#versioning)). The following versions are currently available:
+
+- **v1**: Initial stable release — `https://api.bookhub.com/api/v1`
+- **v2**: Current version with analytics features — `https://api.bookhub.com/api/v2`
 
 ## Authentication
 
-The BookHub Publisher API uses API keys for authentication. To access the API, you must include your API key in the `Authorization` header of your requests. The format is as follows:
-
-```
-Authorization: Bearer YOUR_API_KEY
-```
+All API requests require authentication using a JWT bearer token. For details, see the [Authentication](/reference/reference-authentication) section.
 
 ## Endpoints
 
-### 1. Create a new book
+The following endpoints are available in v2:
 
-**Endpoint:** `POST /api/books`
-**Description:** Create a new book in the BookHub system.
-**Request Body:**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/books` | `POST` | Create a new book |
+| `/books` | `GET` | Get all books |
+| `/books/{bookId}` | `GET` | Get a specific book |
+| `/books/{bookId}` | `DELETE` | Delete a book |
+| `/books/{bookId}/finalize` | `PATCH` | Finalize a book |
 
-```json
-{
-  "title": "string",
-  "author": "string",
-  "isbn": "string",
-  "publication_date": "string (YYYY-MM-DD)",
-  "genre": "string",
-  "summary": "string"
-}
-```
-
-**Response:**
-
-```json
-{
-  "id": "string",
-  "title": "string",
-  "author": "string",
-  "isbn": "string",
-  "publication_date": "string (YYYY-MM-DD)",                        
-  "genre": "string",
-  "summary": "string"
-}
-```
-
-### 2. Get book details
-
-**Endpoint:** `GET /api/books/{id}`
-**Description:** Retrieve details of a specific book by its ID.
-**Response:**
-
-```json
-{
-    "id": "string",
-
-    "title": "string",
-    "author": "string",
-    "isbn": "string",
-    "publication_date": "string (YYYY-MM-DD)",
-    "genre": "string",
-    "summary": "string"
-}
-```
-
-### 3. Update book information
-
-**Endpoint:** `PUT /api/books/{id}`
-**Description:** Update the information of an existing book.
-**Request Body:**
-
-```json
-{
-  "title": "string",
-  "author": "string",
-    "isbn": "string",
-    "publication_date": "string (YYYY-MM-DD)", 
-    "genre": "string",
-    "summary": "string"
-}```
-
-**Response:**
-
-```json
-{
-  "id": "string",
-  "title": "string",
-  "author": "string",
-  "isbn": "string",
-  "publication_date": "string (YYYY-MM-DD)",
-  "genre": "string",
-  "summary": "string"
-}
-```
-
-### 4. Delete a book
-
-**Endpoint:** `DELETE /api/books/{id}`
-**Description:** Delete a book from the BookHub system.
-**Response:**`
-
-```json
-{
-  "message": "Book deleted successfully."
-}
-```
+See [Endpoints](/api-reference/endpoint/createBook) for interactive endpoint documentation and request examples.
 
 ## Error handling
 
-The BookHub Publisher API uses standard HTTP status codes to indicate the success or failure of a request. In case of an error, the response will include an appropriate status code and a JSON object with an error message. For example:
+The API uses standard HTTP status codes to indicate success or failure. Error responses return a JSON object with a `status` and `message` field. For a complete list of error codes, see [API endpoints](/reference/reference-api-endpoints).
 
-```json
-{
-  "error": "Book not found."
-}
-```
+## Rate limiting
 
-## Conclusion
-
-This API reference provides the necessary information to interact with the BookHub Publisher API effectively. For more detailed examples and additional endpoints, please refer to the full documentation. If you have any questions or need further assistance, feel free to contact our support team. Happy publishing!
+All versions support 150 requests per minute. Exceeded requests return a `429` response with rate limit headers. For more information, see the [API endpoints](/reference/reference-api-endpoints) and [monitor rate limits](/reference/reference-rate-limits) sections.

@@ -552,6 +552,49 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '429':
           $ref: '#/components/responses/RateLimitError'
+    delete:
+      summary: Delete a book
+      description: |
+        Permanently deletes a book from the BookHub marketplace.
+
+        ## Important notes
+        - Only `INACTIVE` books can be deleted
+        - This operation cannot be undone
+        - Active books must be deactivated before deletion
+      operationId: deleteBook
+      tags:
+        - Books
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier of the book to delete
+          schema:
+            type: string
+          example: "abc123"
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '204':
+          description: Book deleted successfully. No content returned.
+        '400':
+          description: Bad request (e.g., book is not INACTIVE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "Cannot delete book"
+                errors:
+                  - field: "status"
+                    error: "INVALID_STATUS_TRANSITION"
+                    description: "Book must be INACTIVE to delete. Current status: ACTIVE"
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
 
   /books/{bookId}/finalize:
     patch:
@@ -643,7 +686,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '429':
           $ref: '#/components/responses/RateLimitError'
-
+          
 tags:
   - name: Books
     description: Operations for managing book catalog

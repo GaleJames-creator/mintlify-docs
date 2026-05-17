@@ -3,23 +3,20 @@ title: 'Breaking changes'
 description: 'Important information about breaking changes in the BookHub Publisher API.'
 ---
 
-# Breaking changes
-
-This section outlines the breaking changes introduced in version 2.0 of the BookHub Publisher API. If you are currently using version 1, please review these changes carefully to ensure a smooth migration to v2.
+This section covers the breaking changes in version 2.0 of the BookHub Publisher API. If you use version 1, review these changes for a smooth migration to v2.
 
 ## Title sorting removed (breaking change)
 
-**v2 no longer supports sorting by title** on the GET all books endpoint. This is a **breaking change** that requires migration if you currently use title-based sorting.
-
+**v2 no longer supports title sorting** in the GET all books endpoint. If you use title sorting, migration is needed.
 ### Why was title sorting removed?
 
 BookHub removed title sorting due to:
 
-- **Performance concerns**: Text-based sorting on large datasets is computationally expensive
-- **Internationalization complexity**: Different languages have different sorting rules
-- **Case sensitivity issues**: Determining the proper sort order with mixed case is ambiguous
+- **Performance concerns**: Text-based sorting on large datasets is computationally expensive.
+- **Internationalization**: Sorting differs across languages.
+- **Case sensitivity**: Mixed case sorting is ambiguous.
 - **Limited usage**: Analytics showed less than 3% of requests used title sorting
-- **Better alternatives**: Date-based sorting provides a more stable, performant option
+- **Alternatives**: Date-based sorting is more stable and efficient.
 
 ### What this means
 

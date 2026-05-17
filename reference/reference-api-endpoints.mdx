@@ -1,7 +1,9 @@
 ---
 title: 'API endpoints'
-description: ' '
+description: 'Detailed documentation for each BookHub Publisher API endpoint, including request/response examples and field definitions.'
 ---
+
+This section provides detailed documentation for each BookHub Publisher API endpoint, including request and response examples, field definitions, and usage notes. For an overview of the API and its features, see the [API reference overview](/reference/reference-overview).
 
 ## Create book
 
@@ -316,6 +318,37 @@ def get_books_sorted_by_title(ascending=True):
         reverse=not ascending
     )
 ```
+--
+
+## Delete a book
+
+Learn how to delete a book from the BookHub system using the API.
+
+### Finalize book endpoint
+
+```http
+DELETE /v2/books/{bookId}
+```
+
+### Finalize book path parameters
+- `bookId` (required): Unique identifier of the book to delete
+### Finalize book request example
+
+```bash
+curl -X DELETE "https://api.bookhub.com/api/v2/books/{bookId}"
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+<Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
+
+
+### Finalize book response (200 OK)
+
+```json
+{
+  "message": "Book deleted successfully."
+}
+
+If the deletion is successful, you will receive a confirmation message in the response. If there are any issues, such as the book not being found or authentication errors, you will receive an appropriate error message.
 
 ---
 

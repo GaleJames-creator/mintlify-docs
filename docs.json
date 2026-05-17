@@ -29,12 +29,12 @@
             "group": "How-to guides",
             "pages": [
               "how-to-guides/how-to-guides-overview",
-              "how-to-guides/how-to-guides-cache-book-details",
               "how-to-guides/how-to-guides-migrate-bookhub",
-              "how-to-guides/how-to-guides-handle-pagination",
               "how-to-guides/how-to-guides-migrate-away-from-title-sorting",
+              "how-to-guides/how-to-guides-cache-book-details",
+              "how-to-guides/how-to-guides-handle-pagination",
               "how-to-guides/how-to-guides-monitor-rate-limits",
-              "how-to-guides/how-to-guides-use-hitcount-for-analytics",
+              "how-to-guides/how-to-guides-use-hitcount-to-track-book-performance",
               "how-to-guides/how-to-guides-use-the-idempotency-key"
               
 
@@ -53,9 +53,11 @@
               "group": "Reference",
               "pages": [
                 "reference/reference-overview",
+                "reference/reference-release-notes",
                 "reference/reference-documentation-information",
                 "reference/reference-breaking-changes",
-                "reference/reference-release-notes",
+                "reference/reference-authentication",
+                "reference/reference-api-endpoints",
                 "reference/reference-data-models",
                 "reference/reference-code-examples"
               ]
@@ -76,6 +78,7 @@
               "api-reference/endpoint/createBook",
               "api-reference/endpoint/getAllBooks",
               "api-reference/endpoint/getBook",
+              "api-reference/endpoint/deleteBook",
               "api-reference/endpoint/finalizeBook"            ]
           }
         ]

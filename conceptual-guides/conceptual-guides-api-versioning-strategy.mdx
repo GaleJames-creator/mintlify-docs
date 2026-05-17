@@ -5,7 +5,7 @@ description: 'Understand the reasoning behind the API versioning strategy.'
 
 ## Path-based versioning explained
 
-The BookHub Publisher API v2 uses **URI path versioning**, where the version number is part of the URL path:
+BookHub Publisher API v2 uses **URI path versioning**. The version number appears in the URL path: 
 
 ```http
 https://api.bookhub.com/api/{version}/books
@@ -18,7 +18,7 @@ https://api.bookhub.com/api/{version}/books
 
 ### Why is it different from header-based?
 
-Some API implementations use header-based versioning (via the `api-version` header). Path-based versioning was chosen for v2 because:
+Path-based versioning was chosen for v2 instead of header-based because:
 
 - **Simplicity**: Version is in the URL, no need to remember custom headers
 - **Testability**: Easy to test in browser, curl, and Postman

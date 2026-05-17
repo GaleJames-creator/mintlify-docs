@@ -1,0 +1,18 @@
+---
+title: 'Use hitCount to track book performance'
+description: 'Learn how to use the hitCount field to analyze book performance trends over time.'
+---
+
+The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. This can be used to track the popularity and performance of books over time. The following examples show how to use the `hitCount` field correctly and what to avoid.
+
+✅ **Good uses:**
+
+- Identifying trending books over weeks/months
+- Measuring marketing campaign effectiveness
+- Generating internal reports
+
+❌ **Avoid:**
+
+- Making instant inventory decisions based on a single view count.
+- Using it as the sole metric for success.
+- Treating it as perfectly accurate (may have slight delays in updates).
