@@ -1,0 +1,86 @@
+---
+title: 'Migrate BookHub guide from v1 to v2'
+description: 'Instructions for migrating from BookHub v1 to v2.'
+---
+
+This guide shows how to migrate from BookHub v1 to v2.
+
+## Step 1: Update base URLs
+
+### Before (v1)
+
+```http
+https://api.bookhub.com/api/v1/books
+```
+
+### After (v2)
+
+```http
+https://api.bookhub.com/api/v2/books
+```
+
+## Step 2: Handle the `hitCount` field
+
+If you're retrieving individual books, your code will now receive the `hitCount` field.
+
+### Python example
+
+```python
+# v1 code
+response = requests.get(f"{BASE_URL}/v1/books/{book_id}")
+book = response.json()['data']
+# book has no hitCount field
+
+# v2 code
+response = requests.get(f"{BASE_URL}/v2/books/{book_id}")
+book = response.json()['data']
+hit_count = book.get('hitCount', 0)  # New field available
+print(f"This book has been viewed {hit_count} times")
+```
+
+## Step 3: Replace title sorting
+
+If you currently use title sorting, you have two options:
+
+### Option A: Use date sorting (recommended)
+
+```python
+# Before (v1)
+response = requests.get(f"{BASE_URL}/v1/books?sort=title&order=asc")
+
+# After (v2) - Sort by creation date instead
+response = requests.get(f"{BASE_URL}/v2/books?sort=createdDate&order=desc")
+```
+
+#### Option B: Implement client-side sorting
+
+```python
+# Fetch all books
+response = requests.get(f"{BASE_URL}/v2/books?limit=100")
+books = response.json()['data']['books']
+
+# Sort by title on client side
+sorted_books = sorted(books, key=lambda x: x['title'].lower())
+```
+
+## Step 4: Update error handling
+
+Be prepared to handle the new error when title sorting is attempted:
+
+```python
+import requests
+
+def get_books(sort_by='createdDate', order='desc'):
+    params = {'sort': sort_by, 'order': order}
+    response = requests.get(f"{BASE_URL}/v2/books", params=params)
+    
+    if response.status_code == 400:
+        error_data = response.json()
+        if 'sort' in str(error_data):
+            # Invalid sort parameter
+            print("Error: v2 only supports sorting by createdDate")
+            # Fall back to default
+            return get_books(sort_by='createdDate', order=order)
+    
+    return response.json()
+```

@@ -1,0 +1,46 @@
+---
+title: 'Quickstart-guide'
+description: 'Start building the BookHub Publisher'
+---
+
+## Prerequisites
+
+1. BookHub publisher account
+2. API credentials (JWT token)
+3. HTTPS client (curl, Postman, or programming language HTTP library)
+
+## Basic workflow
+
+```bash
+# 1. Create a book (returns PENDING status)
+curl -X POST https://api.bookhub.com/api/v2/books \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My New Book",
+    "author": "John Doe",
+    "description": "A new biography from a well-known author",
+    "language": "en-US",
+    "publisher": "My Publishing House",
+    "publishedDate": "2024-03-15",
+    "isbn": "978-0-1234-5678-9",
+    "price": 24.99,
+    "coverImages": ["https://example.com/cover.jpg"],
+    "genres": ["Fiction", "Adventure"],
+    "bookFormat": "Hardcover"
+  }'
+
+# 2. Get the book to see hitCount (starts at 0)
+curl -X GET https://api.bookhub.com/api/v2/books/{bookId} \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# 3. List all books (sorted by creation date only)
+curl -X GET https://api.bookhub.com/api/v2/books?sort=createdDate&order=desc \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# 4. Finalize the book (PENDING -> ACTIVE)
+curl -X PATCH https://api.bookhub.com/api/v2/books/{bookId}/finalize \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"notes": "Ready for publication."}'
+```

@@ -1,0 +1,30 @@
+---
+title: 'Migrate away from title sorting'
+description: 'Learn how to migrate away from title sorting.'
+---
+
+This guide shows how to migrate from title sortiing in v1 to v2.
+
+## Step 1: Audit your codebase for `sort=title` parameters
+
+```bash
+# Search your codebase
+grep -r "sort=title" .
+grep -r "sort.*title" .
+```
+
+## Step 2: Replace with date sorting or client-side sorting
+
+```python
+# Before
+response = get_books(sort='title', order='asc')
+
+# After - Option A: Use date sorting
+response = get_books(sort='createdDate', order='desc')
+
+# After - Option B: Client-side sort
+all_books = get_books()
+sorted_books = sorted(all_books, key=lambda x: x['title'])
+```
+
+#Step 3: Update documentation and inform your team

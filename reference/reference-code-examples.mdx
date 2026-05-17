@@ -1,0 +1,274 @@
+---
+title: 'Code examples'
+description: 'Example code for interacting with the BookHub Publisher API.'
+---
+
+# Code examples
+
+This section provides example code snippets in various programming languages to help you get started with the BookHub Publisher API. These examples cover common use cases such as creating a book, retrieving book details, and handling analytics data.
+
+## Python example: Create and track book views
+
+```python
+import requests
+import time
+
+BASE_URL = "https://api.bookhub.com/api/v2"
+TOKEN = "your_jwt_token_here"
+
+headers = {
+    "Authorization": f"Bearer {TOKEN}",
+    "Content-Type": "application/json"
+}
+
+# 1. Create a new book
+book_data = {
+    "title": "Data-Driven Publishing",
+    "author": "Sarah Analytics",
+    "description": "Understanding metrics in modern publishing",
+    "language": "en-US",
+    "publisher": "TechBooks Publishing",
+    "publishedDate": "2026-01-15",
+    "isbn": "978-0-9876-5432-1",
+    "price": 29.99,
+    "coverImages": ["https://example.com/cover.jpg"],
+    "genres": ["Business", "Technology"],
+    "bookFormat": "Paperback"
+}
+
+create_response = requests.post(
+    f"{BASE_URL}/books",
+    headers=headers,
+    json=book_data
+)
+
+if create_response.status_code == 201:
+    book_id = create_response.json()['data']['bookId']
+    print(f"✓ Book created: {book_id}")
+    
+    # 2. Check initial hit count
+    detail_response = requests.get(
+        f"{BASE_URL}/books/{book_id}",
+        headers=headers
+    )
+    book = detail_response.json()['data']
+    print(f"Initial hit count: {book['hitCount']}")  # Should be 1 (from this call)
+    
+    # 3. Finalize the book
+    finalize_response = requests.patch(
+        f"{BASE_URL}/books/{book_id}/finalize",
+        headers=headers,
+        json={"notes": "Ready for publication."}
+    )
+    
+    if finalize_response.status_code == 200:
+        print("✓ Book finalized and now ACTIVE")
+        
+        # 4. Simulate some views and track hit count
+        for i in range(5):
+            time.sleep(1)
+            view_response = requests.get(
+                f"{BASE_URL}/books/{book_id}",
+                headers=headers
+            )
+            hit_count = view_response.json()['data']['hitCount']
+            print(f"View #{i+2}: Hit count is now {hit_count}")
+
+else:
+    print(f"Error creating book: {create_response.status_code}")
+    print(create_response.json())
+```
+
+## JavaScript example: List books with client-side title sort
+
+```javascript
+const axios = require('axios');
+
+const BASE_URL = 'https://api.bookhub.com/api/v2';
+const TOKEN = 'your_jwt_token_here';
+
+const headers = {
+  'Authorization': `Bearer ${TOKEN}`
+};
+
+async function getBooksWithTitleSort(ascending = true) {
+  try {
+    // Fetch books sorted by creation date (only option in v2)
+    const response = await axios.get(`${BASE_URL}/books`, {
+      params: {
+        limit: 100,
+        sort: 'createdDate',
+        order: 'desc'
+      },
+      headers: headers
+    });
+    
+    const books = response.data.data.books;
+    console.log(`✓ Fetched ${books.length} books`);
+    
+    // Sort by title on client side
+    const sortedBooks = books.sort((a, b) => {
+      const titleA = a.title.toLowerCase();
+      const titleB = b.title.toLowerCase();
+      
+      if (ascending) {
+        return titleA.localeCompare(titleB);
+      } else {
+        return titleB.localeCompare(titleA);
+      }
+    });
+    
+    console.log('\nBooks sorted by title (client-side):');
+    sortedBooks.slice(0, 10).forEach((book, index) => {
+      console.log(`${index + 1}. ${book.title} (${book.hitCount} views)`);
+    });
+    
+    return sortedBooks;
+    
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      console.error('❌ Invalid request:', error.response.data.message);
+    } else {
+      console.error('❌ Error:', error.message);
+    }
+  }
+}
+
+// Run the example
+getBooksWithTitleSort(true);
+```
+
+## Java example: Handle removed title sorting
+
+```java
+import java.net.http.*;
+import java.net.URI;
+import com.google.gson.*;
+
+public class BookHubV2Client {
+    private static final String BASE_URL = "https://api.bookhub.com/api/v2";
+    private static final String TOKEN = "your_jwt_token_here";
+    
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        
+        // Build request with only a valid v2 sort parameter
+        String url = BASE_URL + "/books?sort=createdDate&order=desc&limit=50";
+        
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Authorization", "Bearer " + TOKEN)
+            .GET()
+            .build();
+        
+        HttpResponse<String> response = client.send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
+        );
+        
+        if (response.statusCode() == 200) {
+            Gson gson = new Gson();
+            JsonObject jsonResponse = gson.fromJson(
+                response.body(),
+                JsonObject.class
+            );
+            
+            JsonArray books = jsonResponse
+                .getAsJsonObject("data")
+                .getAsJsonArray("books");
+            
+            System.out.println("✓ Fetched " + books.size() + " books");
+            System.out.println("Sorted by creation date (newest first):");
+            
+            for (int i = 0; i < Math.min(5, books.size()); i++) {
+                JsonObject book = books.get(i).getAsJsonObject();
+                System.out.printf(
+                    "%d. %s - Created: %s%n",
+                    i + 1,
+                    book.get("title").getAsString(),
+                    book.get("createdDate").getAsString()
+                );
+            }
+        } else if (response.statusCode() == 400) {
+            System.err.println("❌ Bad request - check sort parameter");
+            System.err.println("v2 only supports sort=createdDate");
+            System.err.println(response.body());
+        }
+    }
+}
+```
+
+## PHP example: Track high-performing books
+
+```php
+<?php
+
+$base_url = 'https://api.bookhub.com/api/v2';
+$token = 'your_jwt_token_here';
+
+$headers = [
+    'Authorization: Bearer ' . $token,
+    'Content-Type: application/json'
+];
+
+function getBookDetails($book_id, $base_url, $headers) {
+    $ch = curl_init("$base_url/books/$book_id");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    if ($response === false) {
+        $error = curl_error($ch);
+        curl_close($ch);
+        return null;
+    }
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($status_code === 200) {
+        return json_decode($response, true)['data'];
+    }
+    return null;
+}
+
+function getAllBooks($base_url, $headers, $status = 'ACTIVE') {
+    $ch = curl_init("$base_url/books?status=$status&limit=100&sort=createdDate");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    if ($response === false) {
+        curl_close($ch);
+        return [];
+    }
+    curl_close($ch);
+    
+    return json_decode($response, true)['data']['books'];
+}
+
+// Get all active books
+$books = getAllBooks($base_url, $headers);
+
+// Analyze hit counts
+$high_performers = [];
+foreach ($books as $book) {
+    $details = getBookDetails($book['bookId'], $base_url, $headers);
+    if ($details && $details['hitCount'] > 500) {
+        $high_performers[] = [
+            'title' => $details['title'],
+            'hitCount' => $details['hitCount']
+        ];
+    }
+}
+
+// Sort by hit count
+usort($high_performers, function($a, $b) {
+    return $b['hitCount'] - $a['hitCount'];
+});
+
+echo "High-Performing Books (500+ views):\n";
+foreach ($high_performers as $index => $book) {
+    echo ($index + 1) . ". {$book['title']} - {$book['hitCount']} views\n";
+}
+?>
+```

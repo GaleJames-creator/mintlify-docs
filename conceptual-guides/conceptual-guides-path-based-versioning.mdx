@@ -1,0 +1,16 @@
+---
+title: 'Path-based versioning'
+description: 'Understand why the BookHub Publisher API uses path-based versioning.'
+---
+
+Version 2 (v2) of the BookHub Publisher API uses **path-based versioning**. Unlike the header-based versioning approach used in other implementations, the version is visible in the URL (`/v2/books`).
+
+## Why path-based versioning?
+
+Path-based versioning offers several advantages for the BookHub Publisher API:
+
+- **Simplicity**: The version is visible in the URL, making it easier to test and debug
+- **Caching**: Standard HTTP caches work naturally with different paths
+- **Browser testing**: You can test endpoints directly in a browser address bar
+- **Documentation clarity**: API documentation is clearer when versions are in the path
+- **Tool compatibility**: Works seamlessly with OpenAPI/Swagger tools

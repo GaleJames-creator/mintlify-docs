@@ -1,0 +1,18 @@
+---
+title: 'Monitor rate limits'
+description: 'Learn how to monitor rate limits'
+---
+
+This guide shows how to montor rate limits by tracking rate limit headers to avoid being throttled. Here's an example:
+
+```python
+def check_rate_limits(response):
+    limit = response.headers.get('X-RateLimit-Limit')
+    remaining = response.headers.get('X-RateLimit-Remaining')
+    reset = response.headers.get('X-RateLimit-Reset')
+    
+    print(f"Rate limit: {remaining}/{limit} remaining")
+    
+    if int(remaining) < 10:
+        print(f"⚠️  Low on rate limit! Resets at {reset}")
+```

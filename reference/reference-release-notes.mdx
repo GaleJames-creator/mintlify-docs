@@ -1,0 +1,52 @@
+---
+title: 'Release notes'
+description: 'See the latest updates and changes to the BookHub Publisher API.'
+---
+
+# Release notes
+
+Stay up to date with the latest changes and improvements to the BookHub Publisher API. Below are the release notes for version 2.0, which includes new features, enhancements, and important information about the API.
+
+## Hit count analytics (new feature)
+
+The most significant addition in v2 is the `hitCount` field on individual book retrievals. This provides publishers with basic visibility analytics.
+
+### What is `hitCount`?
+
+The `hitCount` field tracks how many times a specific book's detail page has been accessed via the API. This metric helps publishers:
+
+- **Gauge interest** in specific titles
+- **Identify trending books** before they become bestsellers.
+- **Measure marketing effectiveness** by post-campaign views.
+- **Make data-driven decisions** about inventory and pricing.
+
+### How it works
+
+```http
+GET /v2/books/{bookId}
+```
+
+#### Response includes
+
+```json
+{
+  "status": "success",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "hitCount": 1247,
+    ...
+  }
+}
+```
+
+### Important notes
+
+- `hitCount` is **read-only** and automatically incremented.
+- The count increments each time the GET endpoint is accessed.
+- The initial value for new books is `0`.
+- The field is **only available in v2** (not in v1).
+- The count is per book and persists throughout the book’s lifetime.
+
+---

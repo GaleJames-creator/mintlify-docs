@@ -1,0 +1,18 @@
+---
+title: 'Use hitCount for analytics'
+description: Learn how to use `hitCount` for analytics, not real-time decisions.
+---
+
+The `hitCount` field is useful for trend analysis but should not be used for real-time, mission-critical decisions. The following examples how to use `hitCount` field correctly and what to avoid.
+
+✅ **Good uses:**
+
+- Identifying trending books over weeks/months
+- Measuring marketing campaign effectiveness
+- Generating internal reports
+
+❌ **Avoid:**
+
+- Making instant inventory decisions based on a single view count.
+- Using it as the sole metric for success.
+- Treating it as perfectly accurate (may have slight delays in updates).

@@ -1,0 +1,73 @@
+---
+title: 'Breaking changes'
+description: 'Important information about breaking changes in the BookHub Publisher API.'
+---
+
+# Breaking changes
+
+This section outlines the breaking changes introduced in version 2.0 of the BookHub Publisher API. If you are currently using version 1, please review these changes carefully to ensure a smooth migration to v2.
+
+## Title sorting removed (breaking change)
+
+**v2 no longer supports sorting by title** on the GET all books endpoint. This is a **breaking change** that requires migration if you currently use title-based sorting.
+
+### Why was title sorting removed?
+
+BookHub removed title sorting due to:
+
+- **Performance concerns**: Text-based sorting on large datasets is computationally expensive
+- **Internationalization complexity**: Different languages have different sorting rules
+- **Case sensitivity issues**: Determining the proper sort order with mixed case is ambiguous
+- **Limited usage**: Analytics showed less than 3% of requests used title sorting
+- **Better alternatives**: Date-based sorting provides a more stable, performant option
+
+### What this means
+
+In **v1**, this worked:
+
+```http
+GET /v1/books?sort=title&order=asc
+```
+
+#### ❌ Invalid request example
+
+In **v2**, this won't work:
+
+```http
+GET /v2/books?sort=title&order=asc
+```
+
+#### Returns a `400` error
+
+```json
+{
+  "status": "error",
+  "message": "Invalid sort parameter",
+  "errors": [{
+    "field": "sort",
+    "error": "INVALID_VALUE",
+    "description": "v2 only supports sorting by createdDate. Use v1 for title sorting."
+  }]
+}
+```
+
+#### ✅ Valid request example
+
+In **v2**, use this instead:
+
+```http
+GET /v2/books?sort=createdDate&order=desc
+```
+
+### Available sort options in v2
+
+The `sort` parameter now accepts **only one value**:
+
+- `createdDate` (default: newest first)
+
+The `order` parameter still works:
+
+- `asc`: Ascending (oldest to newest)
+- `desc`: Descending (newest to oldest, default)
+
+---

@@ -1,0 +1,393 @@
+---
+title: 'API endpoints'
+description: ' '
+---
+
+## Create book
+
+Creates a new book with `PENDING` status. Books must be finalized before becoming visible to customers.
+
+### Create book endpoint
+
+```http
+POST /v2/books
+```
+
+### Create book request example
+
+```bash
+curl -X POST "https://api.bookhub.com/api/v2/books" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000" \
+  -H "X-Request-ID: 7f3d9a2c-1b4e-4f8a-9c6d-2e5f1a3b8d4e" \
+  -H "X-Publisher-ID: pub_adventure_books" \
+  -d '{
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "description": "An epic tale of courage and discovery",
+    "language": "en-US",
+    "publisher": "Adventure Books Inc",
+    "publishedDate": "2024-03-15",
+    "isbn": "978-0-1234-5678-9",
+    "price": 24.99,
+    "coverImages": [
+       "https://covers.bookhub.com/great-adventure-front.jpg",
+       "https://covers.bookhub.com/great-adventure-back.jpg"
+     ],
+    "genres": [
+       "Fiction",
+       "Adventure"
+     ],
+    "bookFormat": "Hardcover"
+  }'
+```
+
+<Note>`Idempotency-Key` is recommended for all `POST` requests to prevent duplicate book creation. `X-Request-ID` helps track requests in logs. `X-Publisher-ID` scopes the request to a specific publisher account.</Note>
+
+### Create book response (201 Created)
+
+```json
+{
+  "status": "success",
+  "message": "Book created successfully",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "status": "PENDING",
+    "createdDate": "2024-12-25T10:30:00Z",
+    ...
+  }
+}
+```
+
+### Field validation
+
+| Field           | Type.         | Required | Constraints                    |
+|-----------------|---------------|----------|--------------------------------|
+| `title`         | string        | Yes      | Max 255 characters             |
+| `author`        | string        | Yes      | Max 255 characters             |
+| `description`   | string        | Yes      | Max 5000 characters            |
+| `language`      | string        | Yes      | ISO 639-1 format (e.g., en-US) |
+| `publisher`     | string        | Yes      | Max 255 characters             |
+| `publishedDate` | string (date) | Yes      | YYYY-MM-DD format              |
+| `isbn`          | string        | Yes      | Valid ISBN-10 or ISBN-13       |
+| `price`         | number        | Yes      | Minimum 0.01                   |
+| `coverImages`   | array         | Yes      | 1-5 valid URLs                 |
+| `genres`        | array         | Yes      | 1-5 genre strings              |
+| `bookFormat`    | enum          | Yes      | Paperback, Hardcover, or eBook |
+
+---
+
+## Get single book
+
+Retrieves detailed information about a specific book, **including the `hitCount` analytics field** (v2 only).
+
+### Get single book endpoint
+
+```http
+GET /v2/books/{bookId}
+```
+
+### Get single book path parameters
+
+- `bookId` (required): Unique identifier of the book
+
+### Get single book request example
+
+```bash
+curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" 
+```
+
+<Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
+
+### Get single book response (200 OK)
+
+```json
+{
+  "status": "success",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "description": "An epic tale of courage and discovery",
+    "language": "en-US",
+    "publisher": "Adventure Books Inc",
+    "publishedDate": "2024-03-15",
+    "isbn": "978-0-1234-5678-9",
+    "price": 24.99,
+    "status": "ACTIVE",
+    "coverImages": [
+      "https://covers.bookhub.com/great-adventure-front.jpg"
+    ],
+    "genres": [
+      "Fiction",
+      "Adventure"
+    ],
+    "bookFormat": "Hardcover",
+    "createdDate": "2024-12-25T10:30:00Z",
+    "updatedDate": "2024-12-26T15:45:00Z",
+    "hitCount": 1247
+  }
+}
+```
+
+### `hitCount` field explained
+
+The `hitCount` field is **new in v2** and provides basic analytics:
+
+- **Type**: Integer (minimum 0)
+- **Purpose**: Tracks how many times the book detail page has been accessed
+- **Updates**: Automatically incremented each time this endpoint is called
+- **Initial value**: 0 for newly created books
+- **Read-only**: Cannot be modified directly via API
+
+### Use cases for `hitCount`
+
+- **Trending analysis**: Identify which books are getting the most attention
+  
+   ```python
+   # Get the top 10 most-viewed books
+   all_books = fetch_all_books()
+   trending = sorted(all_books, key=lambda x: x['hitCount'], reverse=True)[:10]
+   ```
+
+- **Marketing ROI**: Compare hit counts before and after marketing campaigns
+  
+   ```python
+   before_campaign = get_book('abc123')['hitCount']
+   # Run marketing campaign
+   after_campaign = get_book('abc123')['hitCount']
+   increase = after_campaign - before_campaign
+   print(f"Campaign generated {increase} additional views")
+   ```
+
+- **Inventory planning**: Prioritize books with high view counts for restocking
+  
+   ```python
+   if book['hitCount'] > 1000 and book['status'] == 'ACTIVE':
+       notify_warehouse_to_restock(book['bookId'])
+   ```
+
+### Response headers
+
+```bash
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+Cache-Control: max-age=3600, must-revalidate
+```
+
+---
+
+## Get all books
+
+Retrieves a paginated list of books.
+
+<Note>Title sorting is not supported. Only the `createdDate` sorting is available for the `sort` parameter.</Note>
+
+### Get all books endpoint
+
+```http
+GET /v2/books
+```
+
+### Query parameters
+
+| Parameter | Type    | Required | Default     | Description                             |
+|-----------|---------|----------|-------------|-----------------------------------------|
+| `page`.   | integer | No       | 1           | Page number (minimum 1).                |
+| `limit`   | integer | No       | 20          | Items per page (max 100).               |
+| `status`  | enum    | No.      | All         | Filter: `PENDING`, `ACTIVE`, `INACTIVE` |
+| `sort`    | enum    | No       | createdDate | **v2 only accepts `createdDate`**.      |
+| `order`   | enum    | No       | desc        | Sort order: asc or desc                 |
+
+### ✅ Valid get all books request examples
+
+#### Sort by creation date, newest first (default)
+
+```http
+GET /v2/books?sort=createdDate&order=desc
+```
+
+#### Sort by creation date, oldest first
+
+```http
+GET /v2/books?sort=createdDate&order=asc
+```
+
+#### No sort parameter (uses default: createdDate desc)
+
+```http
+GET /v2/books
+```
+
+### ❌ Invalid get all books request example
+
+```http
+GET /v2/books?sort=title&order=asc
+```
+
+Returns a `400` error:
+
+```json
+{
+  "status": "error",
+  "message": "Invalid sort parameter",
+  "errors": [{
+    "field": "sort",
+    "error": "INVALID_VALUE",
+    "description": "v2 only supports sorting by createdDate. Use v1 for title sorting."
+  }]
+}
+```
+
+### Get all books request example
+
+```bash
+curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&sort=createdDate&order=desc" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get all books response (200 OK)
+
+```json
+{
+  "status": "success",
+  "data": {
+    "books": [
+      {
+        "bookId": "abc123",
+        "title": "The Great Adventure",
+        "author": "Jane Smith",
+        "status": "ACTIVE",
+        "price": 24.99,
+        "createdDate": "2024-12-25T10:30:00Z",
+        ...
+      },
+      {
+        "bookId": "def456",
+        "title": "Mystery at Midnight",
+        "author": "Bob Johnson",
+        "status": "ACTIVE",
+        "price": 19.99,
+        "createdDate": "2024-12-24T14:20:00Z",
+        ...
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 5,
+      "totalItems": 87,
+      "itemsPerPage": 20
+    }
+  }
+}
+```
+
+### Get all books response headers
+
+```bash
+X-Total-Count: 87
+Link: <https://api.bookhub.com/api/v2/books?page=2>; rel="next",
+      <https://api.bookhub.com/api/v2/books?page=5>; rel="last"
+```
+
+### Client-side title sorting (alternative)
+
+If you need books sorted by title, fetch them and sort client-side:
+
+```python
+import requests
+
+def get_books_sorted_by_title(ascending=True):
+    # Fetch all books (or paginate through all pages)
+    response = requests.get(
+        "https://api.bookhub.com/api/v2/books",
+        params={"limit": 100},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    books = response.json()['data']['books']
+    
+    # Sort by title on client side
+    return sorted(
+        books,
+        key=lambda x: x['title'].lower(),
+        reverse=not ascending
+    )
+```
+
+---
+
+## Finalize book
+
+Changes a book's status from `PENDING` to `ACTIVE`, making it visible to customers.
+
+### Finalize book endpoint
+
+```http
+PATCH /v2/books/{bookId}/finalize
+```
+
+### Finalize book path parameters
+
+- `bookId` (required): Unique identifier of the book to finalize
+
+### Finalize book request example
+
+```bash
+curl https://api.bookhub.com/api/v2/books/{bookId}/finalize \
+  -X PATCH \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "notes": "Reviewed and approved by editorial team"
+  }
+'
+```
+
+<Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
+
+### Finalize book request parameters
+
+| Parameter | Location | Type   | Required | Description                              |
+| --------- | -------- | ------ | -------- | ---------------------------------------- |
+| `notes`   | Body     | string | No       | A comment regarding activating the book. |
+
+### Finalize book response (200 OK)
+
+```json
+{
+  "status": "success",
+  "message": "Book finalized successfully",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "status": "ACTIVE",
+    "updatedDate": "2024-12-27T09:15:00Z"
+  }
+}
+```
+
+### Business rules
+
+- Only books with `PENDING` status can be finalized.
+- Finalization is **idempotent** (calling it multiple times has the same effect).
+- The book becomes available to customers immediately upon finalization.
+- Cannot revert from `ACTIVE` to `PENDING` via API (contact support).
+
+### Finalize book error response (400 Bad Request)
+
+If the book is not in `PENDING` status:
+
+```json
+{
+  "status": "error",
+  "message": "Cannot finalize book",
+  "errors": [{
+    "field": "status",
+    "error": "INVALID_STATUS_TRANSITION",
+    "description": "Book must be in PENDING status to finalize. Current status: ACTIVE"
+  }]
+}
+```

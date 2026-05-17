@@ -1,73 +1,82 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "BookHub Publisher API",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2563EB",
+    "light": "#3B82F6",
+    "dark": "#1D4ED8"
   },
   "favicon": "/favicon.svg",
+  "openapi": "api-reference/api-reference-bookhub-publisher-v2.yaml",
   "navigation": {
     "tabs": [
       {
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Quickstart",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "quickstart/quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Tutorials",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "tutorials/tutorials-overview"            ]
+          },
+          {
+            "group": "How-to guides",
+            "pages": [
+              "how-to-guides/how-to-guides-overview",
+              "how-to-guides/how-to-guides-cache-book-details",
+              "how-to-guides/how-to-guides-migrate-bookhub",
+              "how-to-guides/how-to-guides-handle-pagination",
+              "how-to-guides/how-to-guides-migrate-away-from-title-sorting",
+              "how-to-guides/how-to-guides-monitor-rate-limits",
+              "how-to-guides/how-to-guides-use-hitcount-for-analytics",
+              "how-to-guides/how-to-guides-use-the-idempotency-key"
+              
+
+            
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Conceptual guides",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
+              "conceptual-guides/conceptual-guides-overview",
+              "conceptual-guides/conceptual-guides-api-versioning-strategy",
+              "conceptual-guides/conceptual-guides-path-based-versioning"
             ]
           },
-          {
-            "group": "Agent ready",
-            "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
+            {
+              "group": "Reference",
+              "pages": [
+                "reference/reference-overview",
+                "reference/reference-documentation-information",
+                "reference/reference-breaking-changes",
+                "reference/reference-release-notes",
+                "reference/reference-data-models",
+                "reference/reference-code-examples"
+              ]
+            }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
-            ]
+              "api-reference/api-reference-overview"            ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Endpoints",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
+              "api-reference/endpoint/createBook",
+              "api-reference/endpoint/getAllBooks",
+              "api-reference/endpoint/getBook",
+              "api-reference/endpoint/finalizeBook"            ]
           }
         ]
       }
@@ -75,14 +84,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Portfolio",
+          "href": "https://github.com/GaleJames-creator/gale-james",
+          "icon": "briefcase"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "GitHub",
+          "href": "https://github.com/GaleJames-creator",
+          "icon": "github"
         }
       ]
     }
@@ -94,33 +103,27 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Portfolio",
+        "href": "https://github.com/GaleJames-creator/gale-james"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/gale-james/"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "claude"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/GaleJames-creator",
+      "linkedin": "https://linkedin.com/in/gale-james"
     }
   }
 }

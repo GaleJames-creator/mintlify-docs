@@ -1,0 +1,21 @@
+---
+title: 'Use the Idempotency-Key for create operations'
+description: 'Learn how to use the `Idempotency-Key` to prevent duplicates when creating books.'
+---
+
+Always use  the `Idempotency-Key` when creating books to prevent duplicates:
+
+```python
+import uuid
+
+idempotency_key = str(uuid.uuid4())
+
+response = requests.post(
+    f"{BASE_URL}/books",
+    headers={
+        'Authorization': f'Bearer {token}',
+        'Idempotency-Key': idempotency_key
+    },
+    json=book_data
+)
+```

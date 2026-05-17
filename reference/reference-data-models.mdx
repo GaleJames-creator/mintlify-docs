@@ -1,0 +1,77 @@
+---
+title: "Data models"
+description: 'Detailed information about the data models used in the BookHub Publisher API.'
+---
+
+# Data models
+
+This section provides detailed information about the data models used in the BookHub Publisher API. Understanding these models will help you effectively interact with the API and utilize its features.
+
+## BaseBook schema
+
+Standard book object used across all endpoints.
+
+```json
+{
+  "bookId": "string (read-only)",
+  "title": "string (max 255 chars)",
+  "author": "string (max 255 chars)",
+  "description": "string (max 5000 chars)",
+  "language": "string (ISO 639-1, e.g., en-US)",
+  "publisher": "string (max 255 chars)",
+  "publishedDate": "date (YYYY-MM-DD)",
+  "isbn": "string (ISBN-10 or ISBN-13)",
+  "price": "number (minimum 0.01)",
+  "status": "enum (PENDING, ACTIVE, INACTIVE)",
+  "coverImages": ["array of URLs (1-5 items)"],
+  "genres": ["array of strings (1-5 items)"],
+  "bookFormat": "enum (Paperback, Hardcover, eBook)",
+  "createdDate": "datetime (ISO 8601, read-only)",
+  "updatedDate": "datetime (ISO 8601, read-only)"
+}
+```
+
+## BookWithAnalytics schema (v2 only)
+
+Extends BaseBook with and analytics field.
+
+```json
+{
+  ...BaseBook fields,
+  "hitCount": "integer (minimum 0, read-only)"
+}
+```
+
+The `hitCount` field is **only returned by the GET /v2/books/{bookId} endpoint**.
+
+## Pagination schema
+
+```json
+{
+  "currentPage": "integer (minimum 1)",
+  "totalPages": "integer (minimum 0)",
+  "totalItems": "integer (minimum 0)",
+  "itemsPerPage": "integer (1-100)"
+}
+```
+
+## Error response schema
+
+```json
+{
+  "status": "error",
+  "message": "string",
+  "errors": [
+    {
+      "field": "string",
+      "error": "string",
+      "description": "string",
+      "validation_context": {
+        "rule": "string",
+        "constraint": "object",
+        "provided_value": "string"
+      }
+    }
+  ]
+}
+```

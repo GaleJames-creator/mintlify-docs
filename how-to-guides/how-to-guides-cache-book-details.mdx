@@ -1,0 +1,30 @@
+---
+title: 'Cache book details'
+description: ' '
+---
+
+This guide shows how to properly cache book details.
+
+The API returns `ETag` and `Cache-Control` headers. Here's how to use them:
+
+```python
+import requests
+
+# First request
+response = requests.get(f"{BASE_URL}/books/{book_id}")
+etag = response.headers.get('ETag')
+book_data = response.json()
+
+# Later request with conditional GET
+response = requests.get(
+    f"{BASE_URL}/books/{book_id}",
+    headers={'If-None-Match': etag}
+)
+
+if response.status_code == 304:
+    # Use cached data
+    print("Data unchanged, using cache")
+else:
+    # Update cache
+    book_data = response.json()
+```
