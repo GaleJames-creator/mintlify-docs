@@ -3,6 +3,8 @@ title: 'Migrate away from title sorting'
 description: 'Update your code to stop using title sorting in BookHub Publisher API v2. Use date sorting or client-side sorting instead.'
 ---
 
+The `GET /v2/books` endpoint no longer accepts the `sort=title` parameter for sorting results by title. To migrate, replace `sort=title` with `sort=createdDate` for server-side sorting or implement client-side sorting after fetching results. For step-by-step migration instructions, see the steps below.
+
 ## Step 1: Audit your codebase for `sort=title` parameters
 
 ```bash
@@ -29,3 +31,19 @@ sorted_books = sorted(all_books, key=lambda x: x['title'])
 
 * Update any internal documentation that references title sorting.
 * Communicate the change to your team to ensure everyone is aware of the new sorting approach.
+
+## Next steps
+
+## How-to guides
+
+* [Migrate BookHub guide from v1 to v2](/how-to-guides/how-to-guides-migrate-bookhub) - Comprehensive guide covering all changes in BookHub Publisher API v2, including the sorting change and new fields.
+
+## Reference
+
+* [Release notes for v2.0](/reference/reference-release-notes) - Detailed release notes outlining all changes in version 2.0 of the BookHub Publisher API, including the removal of title sorting and the addition of the `hitCount` field.
+* [Breaking changes in v2](/reference/reference-breaking-changes) - Detailed information about all breaking changes in version 2.0 of the BookHub Publisher API, including the removal of title sorting.
+* [API reference](/reference/reference-api) - Updated API reference documentation for BookHub Publisher API v2, including details on the new sorting options and the `hitCount` field.
+* [Code examples](/reference/reference-code-examples) - Updated code examples demonstrating how to implement the new sorting options and use the `hitCount` field effectively.
+
+---
+Last updated: May 2026

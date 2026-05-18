@@ -9,9 +9,7 @@ description: 'Get the latest BookHub Publisher API updates and improvements here
 
 #### Hit count analytics
 
-The `hitCount` field now shows how many times each book's detail page has been requested via the API, providing publishers with simple visibility into analytics.
-
-The `hitCount` field tracks the total number of API requests to a book's detail page. Use this metric to accurately gauge interest in specific titles. For example:
+The `hitCount` field now shows how many times each book's detail page has been requested via the API, providing publishers with simple visibility into analytics. Use this metric to accurately gauge interest in specific titles. For example:
 
 * Identify trending books before they become bestsellers.
 * Measure marketing effectiveness by tracking post-campaign views.
@@ -68,3 +66,13 @@ To migrate, replace `sort=title` with `sort=createdDate`. For step-by-step migra
 The BookHub Publisher API v1 introduced programmatic management of book inventory on the BookHub marketplace, including endpoints for creating, retrieving, and managing books.
 
 For details on migrating from v1 to v2, see [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub).
+
+## Next steps
+### Conceptual guides
+* [Using `hitCount` for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) - Understand how to use the hitCount field to track book performance.
+### How-to guides
+* [Migrate BookHub guide from v1 to v2](/how-to-guides/how-to-guides-migrate-bookhub) - Comprehensive guide covering all changes in BookHub Publisher API v2, including updates to authentication requirements and new fields.
+* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) - Guide to update your code to stop using title sorting in BookHub Publisher API v2, which is relevant if you want to sort books by popularity using `hitCount` instead.
+* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) - Learn how to use the new `hitCount` field effectively to track book performance.
+---
+Last updated: May 2026

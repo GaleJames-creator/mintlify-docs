@@ -1,0 +1,49 @@
+---
+title: 'Using the hitCount fieldfor analytics'
+description: 'Learn how the `hitCount` field in the `BookWithAnalytics` schema provides insights into book performance and popularity.'
+---
+The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. This can be used to track the popularity and performance of books over time. The following examples show how to use the `hitCount` field correctly and what to avoid.
+
+This metric helps publishers:
+
+- **Gauge interest** in specific titles
+- **Identify trending books** before they become bestsellers.
+- **Measure marketing effectiveness** by post-campaign views.
+- **Make data-driven decisions** about inventory and pricing.
+
+## How it works
+
+- The `hitCount` field is read-only and automatically incremented each time the endpoint is accessed.
+- The initial value for new books is `0`.
+- Available in v2 only — not supported in v1.
+- The count is per book and persists throughout the book's lifetime.
+
+When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, the response will include the `hitCount` field, allowing you to see how many times that book's details have been viewed via the API. For example:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "hitCount": 1247
+  }
+}
+```
+<Note>
+The `hitCount` field is updated in real-time and reflects the total number of times a book's details have been accessed via the API.
+</Note>
+
+## Next steps
+
+### How-to guides
+
+* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) - Learn how to use the new hitCount field effectively.
+
+### Reference
+
+* [PHP example: Track high-performing books with hitCount](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) - Example code to use the hitCount field in PHP.
+
+---
+Last updated: May 2026

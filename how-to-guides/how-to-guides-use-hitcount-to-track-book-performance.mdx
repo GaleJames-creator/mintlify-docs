@@ -1,5 +1,5 @@
 ---
-title: 'Use hitCount to track book performance'
+title: 'Use `hitCount` to track book performance'
 description: 'Learn how to use the hitCount field to analyze book performance trends over time.'
 ---
 
@@ -16,3 +16,22 @@ The `hitCount` field in the `BookWithAnalytics` schema provides a count of how m
 - Making instant inventory decisions based on a single view count.
 - Using it as the sole metric for success.
 - Treating it as perfectly accurate (may have slight delays in updates).
+
+## Next steps
+
+### Conceptual guides
+
+* [Using `hitCount` for analytics](./conceptual-guides-hitcount-analytics) - Understand how to use the hitCount field to track book performance.
+
+### How-to guides
+
+* [Migrate BookHub guide from v1 to v2](/how-to-guides/how-to-guides-migrate-bookhub) - Comprehensive guide covering all changes in BookHub Publisher API v2, including the addition of the `hitCount` field and how to use it effectively.
+* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) - Guide to update your code to stop using title sorting in BookHub Publisher API v2, which is relevant if you want to sort books by popularity using `hitCount` instead.
+
+### Reference
+
+* [PHP example: Track high-performing books with hitCount](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) - Example code to use the hitCount field in PHP.
+* [Release notes](./reference/reference-release-notes) - See all changes in v2, including the addition of the `hitCount` field and how it can be used for analytics.
+
+---
+Last updated: May 2026

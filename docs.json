@@ -46,7 +46,8 @@
             "pages": [
               "conceptual-guides/conceptual-guides-overview",
               "conceptual-guides/conceptual-guides-api-versioning-strategy",
-              "conceptual-guides/conceptual-guides-path-based-versioning"
+              "conceptual-guides/conceptual-guides-path-based-versioning",
+              "conceptual-guides/conceptual-guides-hitcount-analytics"
             ]
           },
             {

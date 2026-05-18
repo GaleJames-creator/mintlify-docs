@@ -2,8 +2,9 @@
 title: 'Cache book details for faster performance'
 description: 'Learn how to use ETag and Cache-Control headers to cache book details and reduce API calls.'
 ---
+The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers that can be used to cache book details and reduce unnecessary API calls. By implementing caching, you can improve performance and reduce latency when retrieving book information.
 
-The API returns `ETag` and `Cache-Control` headers. Here's how to use them:
+Here's how to use them:
 
 ```python
 import requests
@@ -26,3 +27,6 @@ else:
     # Update cache
     book_data = response.json()
 ```
+
+---
+Last updated: May 2026
