@@ -3,7 +3,7 @@ info:
   title: BookHub Publisher API
   description: |
     BookHub's Publisher API enables programmatic management of book inventory on the BookHub marketplace. 
-    This API uses path-based versioning (v1, v2) and requires authentication via JWT tokens.
+    This API uses path-based versioning (v1, v2) and requires authentication via JWTs.
     
     ## What's new in v2
     
@@ -41,7 +41,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT token obtained from the authentication endpoint
+      description: JWT obtained from the authentication endpoint
 
   parameters:
     IdempotencyKey:
@@ -255,10 +255,9 @@ components:
               type: integer
               minimum: 0
               description: |
-                Number of times this book has been viewed (v2 only).
+                Number of times this book has been retrieved by buyers (v2 only).
                 
-                This field tracks how many times the book detail page has been accessed,
-                providing publishers with basic analytics about book visibility.
+                <hitcount />
               example: 1247
               readOnly: true
 
@@ -488,7 +487,7 @@ paths:
         
         ## v2 changes
         - **(new)**: Returns `hitCount` field.
-        - The hit count is incremented each time this endpoint is accessed
+        - The `hitCount` increments each time a buyer retrieves the book via `GET /v2/books/{bookId}`. Requests authenticated with publisher credentials do not increment the count.
       operationId: getBook
       tags:
         - Books

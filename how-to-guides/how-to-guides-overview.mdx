@@ -1,26 +1,25 @@
 ---
 title: 'Overview'
-description: 'Contains step-by-step guides for using the BookHub Publisher API.'
+description: 'How-to guides for using the BookHub Publisher API.'
 ---
 
-This section provides step-by-step instructions to accomplish specific BookHub Publisher tasks. For general API information, see the [API reference](/reference/reference-overview).
+This section provides task-based guides for using the BookHub Publisher API. For general API information, see the [API reference](/reference/reference-overview).
 
-## Install and migrate BookHub publisher
+## Migrate your BookHub Publisher integration
 
-This section includes migration and installation instructions for BookHub Publisher v2.
+This section explains how to migrate BookHub Publisher API v1 code to use the new v2 endpoints and features.
 
-* [Migrate BookHub from v1 to v2](./how-to-guides-migrate-bookhub)
-* [Migrate away from title sorting](./how-to-guides-migrate-away-from-title-sorting)
+* [Migrate to BookHub Publisher API v2](./how-to-guides-migrate-bookhub) &mdash; Update your code to use the new v2 endpoints and features.
+* [Migrate away from title sorting](./how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to stop using title sorting in BookHub Publisher API v2.
 
-## Manage BookHub publisher
+## Manage performance, reliability, and usage insights
 
-This section explains how to configure the BookHub Publisher.
+This section explains how to optimize API performance and track usage insights.
 
-* [Cache book details for faster performance](./how-to-guides-cache-book-details)
-* [Handle pagination](./how-to-guides-handle-pagination)
-* [Monitor rate limits](./how-to-guides-monitor-rate-limits)
-* [Use `hitCount` to track book performance](./how-to-guides-use-hitcount-to-track-book-performance)
-* [Use the Idempotency-Key for create operations](./how-to-use-the-idempotency-key)
+* [Cache book details for faster performance](./how-to-guides-cache-book-details) &mdash; Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.
+* [Handle pagination](./how-to-guides-handle-pagination) &mdash; Retrieve paginated results from the BookHub Publisher API using the `page` and `limit` parameters.
+* [Monitor rate limits](./how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
+* [Add the `Idempotency-Key` header](./how-to-guides-add-the-idempotency-key-header) &mdash; Add the `Idempotency-Key` header to prevent duplicate book creation when making POST requests.
+* [Use `hitCount` to track book performance](./how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to analyze book performance trends over time.
 
 ---
-Last updated: May 2026

@@ -1,32 +1,146 @@
 ---
 title: 'Handle pagination'
-description: 'Learn how to correctly handle pagination for the BookHub API.'
+description: 'Retrieve paginated results from the BookHub Publisher API using `page` and `limit` parameters.'
 ---
 
-This guide explains how to paginate results when fetching all books from the BookHub API. The API uses a standard pagination approach with `page` and `limit` query parameters. Here's how to implement it:
+import Prerequisites from '/snippets/prerequisites.mdx';
+
+Retrieve paginated results when fetching all books from the BookHub API. 
+
+## Prerequisites
+
+<Prerequisites />
+
+* Familiarity with BookHub Publisher API v2.
+* A valid JWT for authentication.
+* Access to your codebase that integrates with the BookHub Publisher API.
+
+## Step 1: Send a paginated request
+
+For an overview of how pagination works in the BookHub API, see [Pagination](/conceptual-guides/conceptual-guides-pagination).
+
+The examples use `page` and `limit` only. The endpoint also accepts `status`, `sort`, and `order` parameters — see [API endpoints](/reference/reference-api-endpoints#get-all-books) for details.
 
 ```python
 def fetch_all_books(base_url, token):
     all_books = []
     page = 1
-    
     while True:
         response = requests.get(
-            f"{base_url}/books",
+            f"{base_url}/v2/books",
             params={'page': page, 'limit': 100},
             headers={'Authorization': f'Bearer {token}'}
         )
-        
-        data = response.json()['data']
-        all_books.extend(data['books'])
-        
+        response.raise_for_status()
+        data = response.json().get('data', {})
+        if 'pagination' not in data:
+            break
+        all_books.extend(data.get('books', []))
         if page >= data['pagination']['totalPages']:
             break
-        
         page += 1
-    
     return all_books
 ```
 
+<Note>The loop exits when `page` reaches `totalPages`, including when the API returns fewer items than `limit`. If the response does not include a `pagination` object, the loop exits immediately.</Note>
+
+The response includes a `pagination` object with details on the total number of items, the total number of pages, and the current page.
+
+```json
+{
+  "status": "success",
+  "data": {
+    "books": [
+      {
+        "bookId": "abc123",
+        "title": "The Great Adventure",
+        "author": "Jane Smith",
+        "description": "An epic tale of courage and discovery",
+        "language": "en-US",
+        "publisher": "Adventure Books Inc",
+        "publishedDate": "2024-03-15",
+        "isbn": "978-3-16-148410-0",
+        "price": 24.99,
+        "status": "ACTIVE",
+        "coverImages": [
+          "https://covers.bookhub.com/great-adventure-front.jpg"
+        ],
+        "genres": [
+          "Fiction",
+          "Adventure"
+        ],
+        "bookFormat": "Hardcover",
+        "createdDate": "2024-12-25T10:30:00Z",
+        "updatedDate": "2024-12-26T15:45:00Z"
+      },
+      {
+        "bookId": "def456",
+        "title": "Mystery at Midnight",
+        "author": "Bob Johnson",
+        "description": "A gripping mystery set in a small town",
+        "language": "en-US",
+        "publisher": "Midnight Press",
+        "publishedDate": "2024-06-10",
+        "isbn": "978-1-23-456789-0",
+        "price": 19.99,
+        "status": "ACTIVE",
+        "coverImages": [
+          "https://covers.bookhub.com/mystery-midnight-front.jpg"
+        ],
+        "genres": [
+          "Mystery",
+          "Thriller"
+        ],
+        "bookFormat": "Paperback",
+        "createdDate": "2024-12-24T14:20:00Z",
+        "updatedDate": "2024-12-24T14:20:00Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 5,
+      "totalItems": 87,
+      "itemsPerPage": 20
+    }
+  }
+}
+```
+
+### Error responses
+
+The `page` parameter defaults to 1. The `limit` parameter accepts values between 1 and 100 and defaults to 20.
+
+| Status code | Meaning |
+|-------------|---------|
+| `400` | Bad request — invalid `page` or `limit` parameter |
+| `401` | Unauthorized — missing or invalid JWT token |
+| `429` | Rate limit exceeded — 150 requests per minute |
+
+## Step 2: Test your implementation
+
+Call the `fetch_all_books` function with your API base URL and JWT. Verify that it retrieves all books across multiple pages by checking the length of the returned list against the `totalItems` field in the pagination object.
+
+```python
+BASE_URL = "https://api.bookhub.com/api"
+TOKEN = "YOUR_JWT_TOKEN"
+books = fetch_all_books(BASE_URL, TOKEN)
+print(f"Total books fetched: {len(books)}")
+```
+
+## Next steps
+
+### Conceptual guides
+
+* [Pagination](/conceptual-guides/conceptual-guides-pagination) &mdash; Learn about the concept of pagination and how it works in the BookHub API.
+
+### How-to guides
+
+* [Cache book details for faster performance](./how-to-guides-cache-book-details) &mdash; Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.
+* [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
+
+### Reference
+
+* [PHP example: Fetch all books with pagination](./reference/reference-code-examples#php-example-fetch-all-books-with-pagination) &mdash; Example code to handle pagination in PHP when fetching books from the BookHub API.
+* [Release notes](./reference/reference-release-notes) &mdash; See all changes in v2, including updates to pagination behavior and response structure.
+
 ---
-Last updated: May 2026

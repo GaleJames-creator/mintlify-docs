@@ -12,7 +12,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "BookHub Publisher",
         "groups": [
           {
             "group": "Quickstart",
@@ -23,7 +23,8 @@
           {
             "group": "Tutorials",
             "pages": [
-              "tutorials/tutorials-overview"            ]
+              "tutorials/tutorials-overview"
+            ]
           },
           {
             "group": "How-to guides",
@@ -35,10 +36,7 @@
               "how-to-guides/how-to-guides-handle-pagination",
               "how-to-guides/how-to-guides-monitor-rate-limits",
               "how-to-guides/how-to-guides-use-hitcount-to-track-book-performance",
-              "how-to-guides/how-to-guides-use-the-idempotency-key"
-              
-
-            
+              "how-to-guides/how-to-guides-add-the-idempotency-key-header"
             ]
           },
           {
@@ -71,7 +69,8 @@
           {
             "group": "Overview",
             "pages": [
-              "api-reference/api-reference-overview"            ]
+              "api-reference/api-reference-overview"
+            ]
           },
           {
             "group": "Endpoints",
@@ -80,7 +79,8 @@
               "api-reference/endpoint/getAllBooks",
               "api-reference/endpoint/getBook",
               "api-reference/endpoint/deleteBook",
-              "api-reference/endpoint/finalizeBook"            ]
+              "api-reference/endpoint/finalizeBook"
+            ]
           }
         ]
       }
@@ -129,5 +129,8 @@
       "github": "https://github.com/GaleJames-creator",
       "linkedin": "https://linkedin.com/in/gale-james"
     }
+  },
+  "metadata": {
+    "timestamp": true
   }
 }

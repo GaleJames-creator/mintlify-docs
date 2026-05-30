@@ -1,9 +1,19 @@
 ---
 title: 'Migrate away from title sorting'
-description: 'Update your code to stop using title sorting in BookHub Publisher API v2. Use date sorting or client-side sorting instead.'
+description: 'Update your code so it no longer uses title sorting in BookHub Publisher API v2.'
 ---
 
-The `GET /v2/books` endpoint no longer accepts the `sort=title` parameter for sorting results by title. To migrate, replace `sort=title` with `sort=createdDate` for server-side sorting or implement client-side sorting after fetching results. For step-by-step migration instructions, see the steps below.
+import Prerequisites from '/snippets/prerequisites.mdx';
+
+The `GET /v2/books` endpoint no longer supports the `sort=title` parameter. Replace it with `sort=createdDate` or implement client-side sorting.
+
+## Prerequisites
+
+<Prerequisites />
+
+* Familiarity with BookHub Publisher API v1.
+* Access to your codebase that integrates with the BookHub Publisher API.
+* A valid JWT for authentication.
 
 ## Step 1: Audit your codebase for `sort=title` parameters
 
@@ -13,37 +23,122 @@ grep -r "sort=title" .
 grep -r "sort.*title" .
 ```
 
-## Step 2: Replace with date sorting or client-side sorting
+## Step 2: Replace with `sort=createdDate` or client-side sorting
+
+To update your code, replace any instances of `sort=title` with either `sort=createdDate` or client-side sorting. Option A uses the API's `sort=createdDate` parameter to return results pre-sorted. Option B fetches unsorted results and sorts them in your application code. Here are examples of both approaches:
+
+### Before (v1)
 
 ```python
-# Before
-response = get_books(sort='title', order='asc')
-
-# After - Option A: Use date sorting
-response = get_books(sort='createdDate', order='desc')
-
-# After - Option B: Client-side sort
-all_books = get_books()
-sorted_books = sorted(all_books, key=lambda x: x['title'])
+response = requests.get(f"{BASE_URL}/v1/books", params={"sort": "title", "order": "asc"})
 ```
 
-## Step 3: Update documentation and inform your team
+### After (v2) option A: `sort=createdDate` (recommended)
 
-* Update any internal documentation that references title sorting.
-* Communicate the change to your team to ensure everyone is aware of the new sorting approach.
+```python
+response = requests.get(f"{BASE_URL}/v2/books", params={"sort": "createdDate", "order": "desc"})
+```
+
+### After (v2) option B: client-side sorting
+
+<Important>Client-side sorting requires fetching all books. For large catalogs, this may hit rate limits (150 requests per minute) or impact performance. Use `sort=createdDate` where possible.</Important>
+
+When fetching books, you can sort them by title on the client side after retrieving the data. Here's an example of how to do this in Python:
+
+<Note>This example fetches up to 100 books in a single request. For catalogs larger than 100 books, paginate through all pages before sorting. See [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) for details.</Note>
+
+```python
+import requests
+
+def get_books_sorted_by_title(ascending=True):
+    # Fetch all books (or paginate through all pages)
+    response = requests.get(
+        "https://api.bookhub.com/api/v2/books",
+        params={"limit": 100},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    response.raise_for_status()
+    books = response.json()['data']['books']
+    
+    # Sort by title on client side
+    return sorted(
+        books,
+        key=lambda x: x.get('title', '').lower(),
+        reverse=not ascending
+    )
+```
+
+## Response
+
+A successful `GET /v2/books` request using `sort=createdDate` returns `200 OK`:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "books": [
+      {
+        "bookId": "abc123",
+        "title": "The Great Adventure",
+        "author": "Jane Smith",
+        "status": "ACTIVE",
+        "price": 24.99,
+        "createdDate": "2024-12-25T10:30:00Z",
+        "updatedDate": "2024-12-26T15:45:00Z"
+      },
+      {
+        "bookId": "def456",
+        "title": "Mystery at Midnight",
+        "author": "Bob Johnson",
+        "status": "ACTIVE",
+        "price": 19.99,
+        "createdDate": "2024-12-24T14:20:00Z",
+        "updatedDate": "2024-12-24T14:20:00Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "totalPages": 5,
+      "totalItems": 87,
+      "itemsPerPage": 20
+    }
+  }
+}
+```
+
+Passing `order=desc` returns books newest first, `order=asc` for oldest first. If your code still passes `sort=title`, v2 returns a `400` error:
+
+```json
+{
+  "status": "error",
+  "message": "Invalid sort parameter",
+  "errors": [{"field": "sort", "error": "INVALID_VALUE"}]
+}
+```
+
+See [API reference](/reference/reference-api-endpoints#get-all-books) for all available parameter values and the full error response.
+
+## Step 3: Test your changes
+
+Send a test request and confirm the response returns `200 OK` with books ordered by `createdDate`. For catalogs larger than 100 books, run the pagination test from [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) to verify all pages return correctly.
+
+```bash
+curl -X GET "https://api.bookhub.com/api/v2/books?sort=createdDate&order=desc" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Verify the first book in the response has the most recent `createdDate`.
 
 ## Next steps
 
-## How-to guides
+### How-to guides
 
-* [Migrate BookHub guide from v1 to v2](/how-to-guides/how-to-guides-migrate-bookhub) - Comprehensive guide covering all changes in BookHub Publisher API v2, including the sorting change and new fields.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) ç
+### Reference
 
-## Reference
-
-* [Release notes for v2.0](/reference/reference-release-notes) - Detailed release notes outlining all changes in version 2.0 of the BookHub Publisher API, including the removal of title sorting and the addition of the `hitCount` field.
-* [Breaking changes in v2](/reference/reference-breaking-changes) - Detailed information about all breaking changes in version 2.0 of the BookHub Publisher API, including the removal of title sorting.
-* [API reference](/reference/reference-api) - Updated API reference documentation for BookHub Publisher API v2, including details on the new sorting options and the `hitCount` field.
-* [Code examples](/reference/reference-code-examples) - Updated code examples demonstrating how to implement the new sorting options and use the `hitCount` field effectively.
+* [Release notes for v2.0](/reference/reference-release-notes) &mdash; Lists all changes in version 2.0 of the BookHub Publisher API, such as removing title sorting and adding the `hitCount` field.
+* [Breaking changes in v2](/reference/reference-breaking-changes) &mdash; Details all breaking changes in version 2.0 of the BookHub Publisher API.
+* [API reference](/reference/reference-api-endpoints) &mdash; Offers documentation for BookHub Publisher API v2, with details on new sorting options and the `hitCount` field.
+* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
 
 ---
-Last updated: May 2026

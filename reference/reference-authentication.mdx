@@ -1,20 +1,20 @@
 ---
 title: 'Authentication'
-description: 'Learn how to authenticate with the BookHub Publisher API using JWT bearer tokens.'
+description: 'Information on using JWT for API authentication.'
 ---
 
-This section explains how to authenticate with the BookHub Publisher API using JWT bearer tokens. All API requests require a valid token for authentication.
+This section explains how to authenticate with the BookHub Publisher API using JWT bearer tokens. 
 
 ## JWT bearer token
 
-All API requests require authentication using a JWT (JSON Web Token) bearer token.
+All API requests require authentication using a JWT bearer token.
 
 ### Obtaining a token
 
 Obtain your JWT credentials by contacting:
 
-- Email: `api-support@bookhub.com`
-- Include your publisher account information.
+* Send an email to api-support@bookhub.com
+* Include your publisher account information.
 
 ### Using the token
 
@@ -24,7 +24,7 @@ Include the token in the `Authorization` header:
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-### Example
+### Authenticate a request
 
 ```bash
 curl -X GET https://api.bookhub.com/api/v2/books \
@@ -33,30 +33,22 @@ curl -X GET https://api.bookhub.com/api/v2/books \
 
 ### Token expiration
 
-- Tokens are valid for 24 hours.
-- Refresh tokens before expiration.
-- 401 Unauthorized response indicates expired token.
+* Tokens expire after 24 hours, so they must be refreshed regularly.
+* A `401 Unauthorized` response indicates an expired token.
 
-# Next steps
+## Next steps
 
-## Conceptual guides
+### How-to guides
 
-* [Authentication best practices](./conceptual-guides-authentication-best-practices) - Tips for securely managing and using your JWT tokens.
-* [Token management strategies](./conceptual-guides-token-management) - Strategies for handling token
-refresh and rotation in your applications.
+* [Add the `Idempotency-Key` header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) &mdash; Add the `Idempotency-Key` header to prevent duplicate book creation when making POST requests.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Step-by-step migration instructions for updating your code to v2.
+* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to stop using title sorting in BookHub Publisher API v2.
+* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
 
-## How-to guides
+### Reference
 
-* [Use the Idempotency-Key for create operations](/how-to-guides/how-to-guides-use-the-idempotency-key) - Learn how to use the `Idempotency-Key` header to prevent duplicate book creations.
-* [Migrate BookHub guide from v1 to v2](/how-to-guides/how-to-guides-migrate-bookhub) - Comprehensive guide covering all changes in BookHub Publisher API v2, including updates to authentication requirements.
-* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) - Guide to update your code to stop using title sorting in BookHub Publisher API v2, which is relevant if you want to sort books by popularity using `hitCount` instead.
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) - Learn how to use the new `hitCount` field effectively to track book performance.
-
-## Reference
-
-* [API reference](/reference/reference-api) - Updated API reference documentation for BookHub Publisher API v2, including details on authentication requirements and error responses related to authentication.
-* [Code examples](/reference/reference-code-examples) - Updated code examples demonstrating how to authenticate with the API using JWT bearer tokens effectively in various programming languages.
-* [Release notes](./reference/reference-release-notes) - See all changes in v2, including updates to authentication requirements and any new features related to authentication. 
+* [API reference](/reference/reference-api) &mdash; Offers documentation for BookHub Publisher API v2, with details on new sorting options and the `hitCount` field.
+* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
+* [Release notes](./reference/reference-release-notes) &mdash; See all changes in v2, including updates to authentication requirements and any new features related to authentication. 
 
 ---
-Last updated: May 2026

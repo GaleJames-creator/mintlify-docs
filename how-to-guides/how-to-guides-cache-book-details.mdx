@@ -1,32 +1,142 @@
 ---
 title: 'Cache book details for faster performance'
-description: 'Learn how to use ETag and Cache-Control headers to cache book details and reduce API calls.'
+description: 'Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.'
 ---
-The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers that can be used to cache book details and reduce unnecessary API calls. By implementing caching, you can improve performance and reduce latency when retrieving book information.
 
-Here's how to use them:
+import Prerequisites from '/snippets/prerequisites.mdx';
+
+The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers you can use to cache book details and reduce unnecessary API calls.
+
+## Prerequisites
+
+<Prerequisites />
+
+* Familiarity with BookHub Publisher API v2.
+* A valid JWT for authentication.
+* * A `bookId` for the book whose details you want to cache. In Python examples, this is assigned to a `book_id` variable following Python naming conventions.
+* Access to your codebase that integrates with the BookHub Publisher API.
+
+## Step 1: Make an initial request
+
+Send a `GET` request to retrieve book details. The response includes an `ETag` header with a unique identifier for the current version of the resource, and a `Cache-Control` header indicating how long the response can be cached.
+
+<Note>Replace the `{book_id}` variable in the following Python example with the actual `bookId` returned in the `Create book` response (e.g., `abc123`).</Note>
 
 ```python
 import requests
 
-# First request
-response = requests.get(f"{BASE_URL}/books/{book_id}")
-etag = response.headers.get('ETag')
-book_data = response.json()
+BASE_URL = "https://api.bookhub.com/api"
+TOKEN = "YOUR_JWT_TOKEN"
+HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
-# Later request with conditional GET
 response = requests.get(
-    f"{BASE_URL}/books/{book_id}",
-    headers={'If-None-Match': etag}
+    f"{BASE_URL}/v2/books/{book_id}",
+    headers=HEADERS
+)
+response.raise_for_status()
+etag = response.headers.get('ETag')
+book_data = response.json()['data']
+```
+
+### Response headers
+
+```bash
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+Cache-Control: max-age=3600, must-revalidate
+```
+
+## Step 2: Use `ETag` for conditional requests
+
+For subsequent requests, include the `If-None-Match` header with the `ETag` value from Step 1. If the book details haven't changed, the server returns `304 Not Modified`, and you can use your cached data. If they have changed, the server returns a `200 OK` with updated details.
+
+```python
+response = requests.get(
+    f"{BASE_URL}/v2/books/{book_id}",
+    headers={**HEADERS, 'If-None-Match': etag}
 )
 
 if response.status_code == 304:
-    # Use cached data
     print("Data unchanged, using cache")
 else:
-    # Update cache
-    book_data = response.json()
+    response.raise_for_status()
+    book_data = response.json()['data']
 ```
 
+## Step 3: Test your implementation
+
+Send an initial request and store the `ETag`; then send a second conditional request with the `ETag` from the initial request, including the `If-None-Match` header. Confirm the second request returns `304 Not Modified` if the book details haven't changed.
+
+### Initial request
+
+```bash
+curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -v
+```
+
+### Conditional request
+
+```bash
+curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H 'If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"'
+```
+
+The second request should return `304 Not Modified` if the book details haven't changed.
+
+## Response
+
+A `304 Not Modified` response returns no headers beyond the standard HTTP response headers &mdash; no body is returned. The `Cache-Control: max-age=3600, must-revalidate` header in the initial response means the cached data is valid for 3600 seconds (one hour). After expiry, the cache must revalidate with the server before serving the cached response.
+
+A `200 OK` response returns updated book details:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "bookId": "abc123",
+    "title": "The Great Adventure",
+    "author": "Jane Smith",
+    "description": "An epic tale of courage and discovery",
+    "language": "en-US",
+    "publisher": "Adventure Books Inc",
+    "publishedDate": "2024-03-15",
+    "isbn": "978-3-16-148410-0",
+    "price": 24.99,
+    "status": "ACTIVE",
+    "coverImages": [
+      "https://covers.bookhub.com/great-adventure-front.jpg"
+    ],
+    "genres": [
+      "Fiction",
+      "Adventure"
+    ],
+    "bookFormat": "Hardcover",
+    "createdDate": "2024-12-25T10:30:00Z",
+    "updatedDate": "2024-12-26T15:45:00Z",
+    "hitCount": 1247
+  }
+}
+```
+
+### Error responses
+
+| Status code | Meaning |
+|-------------|---------|
+| `401` | Unauthorized — missing or invalid JWT |
+| `404` | Not found — `bookId` does not exist |
+| `429` | Rate limit exceeded — 150 requests per minute |
+
+## Next steps
+
+### How-to guides
+
+* [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) &mdash; Manage large result sets when retrieving all books.
+* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
+
+### Reference
+
+* [API endpoints](/reference/reference-api-endpoints#get-single-book) &mdash; Full documentation for the `GET /v2/books/{bookId}` endpoint, including all response headers and fields.
+* [Data models](/reference/reference-data-models) &mdash; Detailed information about the `BaseBook` and `BookWithAnalytics` schemas.
+
 ---
-Last updated: May 2026

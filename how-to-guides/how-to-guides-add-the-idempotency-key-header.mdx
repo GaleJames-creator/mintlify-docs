@@ -1,0 +1,150 @@
+---
+title: 'Add the Idempotency-Key header'
+description: 'Add the `Idempotency-Key` header to prevent duplicates when creating books.'
+---
+
+import Prerequisites from '/snippets/prerequisites.mdx';
+
+This guide explains how to add the `Idempotency-Key` header to prevent duplicate book creation in the BookHub Publisher API v2. Including a unique `Idempotency-Key` in each create request prevents multiple submissions from creating the same book.
+
+## Prerequisites
+
+<Prerequisites />
+
+* Familiarity with the BookHub Publisher API v2.
+* A valid JWT for authentication.
+* Access to your codebase that integrates with the BookHub Publisher API.
+
+## Step 1: Add the `Idempotency-Key` header
+
+When you create a new book using the `POST /v2/books` endpoint, include a unique `Idempotency-Key` header in your create request. This ensures that the API creates only one book, even if a client sends the same create request multiple times.
+
+```python
+import requests
+import uuid
+
+BASE_URL = "https://api.bookhub.com/api"
+TOKEN = "YOUR_JWT_TOKEN"
+HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+
+idempotency_key = str(uuid.uuid4())
+
+book_data = {
+    "title": "The Design of Everyday Things",
+    "author": "Don Norman",
+    "description": "A classic book on user-centered design",
+    "language": "en-US",
+    "publisher": "Basic Books",
+    "publishedDate": "2024-01-01",
+    "isbn": "978-3-16-148410-0",
+    "price": 24.99,
+    "coverImages": ["https://example.com/cover.jpg"],
+    "genres": ["Design", "Technology"],
+    "bookFormat": "Hardcover"
+}
+
+response = requests.post(
+    f"{BASE_URL}/v2/books",
+    headers={**HEADERS, 'Idempotency-Key': idempotency_key},
+    json=book_data
+)
+response.raise_for_status()
+book = response.json()['data']
+print(f"Created: {book['bookId']} — Status: {book['status']}")
+```
+
+## Response
+
+A successful request returns a `201 Created` response with the details of the newly created book. 
+
+<Note> The Idempotency-Key must be unique for each create request. As the `Idempotency-Key` is valid only for a short period, typically 24 hours, the key will expire after that time. If you need to create another book or the key has expired, generate a new `Idempotency-Key`.</Note>
+
+For error responses including `400`, `401`, and `429`, see [API endpoints](/reference/reference-api-endpoints#error-codes).
+
+### 201 Created (new book)
+
+```json
+{
+  "status": "success",
+  "message": "Book created successfully",
+  "data": {
+    "bookId": "bk_01HXYZ",
+    "title": "The Design of Everyday Things",
+    "author": "Don Norman",
+    "description": "A classic book on user-centered design",
+    "language": "en-US",
+    "publisher": "Basic Books",
+    "publishedDate": "2024-01-01",
+    "isbn": "978-3-16-148410-0",
+    "price": 24.99,
+    "status": "PENDING",
+    "coverImages": ["https://example.com/cover.jpg"],
+    "genres": ["Design", "Technology"],
+    "bookFormat": "Hardcover",
+    "createdDate": "2026-05-29T14:00:00Z",
+    "updatedDate": "2026-05-29T14:00:00Z"
+  }
+}
+```
+
+If you send the same request again with the same `Idempotency-Key`, the API returns a `200 OK` response with the existing book details.
+
+This is expected behavior &mdash; not an error. The API recognizes the duplicate request and returns the existing book rather than creating a new one.
+
+### 200 OK (duplicate request, same key)
+
+```json
+{
+  "status": "success",
+  "message": "Book created successfully",
+  "data": {
+    "bookId": "bk_01HXYZ",
+    "title": "The Design of Everyday Things",
+    "author": "Don Norman",
+    "description": "A classic book on user-centered design",
+    "language": "en-US",
+    "publisher": "Basic Books",
+    "publishedDate": "2024-01-01",
+    "isbn": "978-3-16-148410-0",
+    "price": 24.99,
+    "status": "PENDING",
+    "coverImages": ["https://example.com/cover.jpg"],
+    "genres": ["Design", "Technology"],
+    "bookFormat": "Hardcover",
+    "createdDate": "2026-05-29T14:00:00Z",
+    "updatedDate": "2026-05-29T14:00:00Z"
+  }
+}
+```
+
+## Step 2: Test idempotency behavior
+
+To verify your implementation, send the create request multiple times using the same `Idempotency-Key`. You should see that the API created only one book, with subsequent create requests returning the existing book details.
+
+Send the same request three times using the same `Idempotency-Key` and `book_data`:
+
+```python
+for i in range(3):
+    response = requests.post(
+        f"{BASE_URL}/v2/books",
+        headers={**HEADERS, 'Idempotency-Key': idempotency_key},
+        json=book_data
+    )
+    print(f"Request {i+1}: {response.status_code}")
+```
+
+The output should show one `201 Created` response followed by two `200 OK` responses with the same book details for the repeated create requests.
+
+## Next steps
+
+### How-to guides
+
+* [Create a book](/quickstart/quickstart) &mdash; Full quickstart workflow including book creation.
+* [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
+
+### Reference
+
+* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
+* [Release notes](./reference/reference-release-notes) &mdash; See all changes in v2, including the addition of the `Idempotency-Key` header for create operations.
+
+---
