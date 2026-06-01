@@ -3,38 +3,49 @@ title: 'API versioning strategy'
 description: 'Understand the reasoning behind the API versioning strategy.'
 ---
 
+API versioning allows developers to add new features and upgrades without breaking existing integrations. The BookHub Publisher API uses path-based versioning, meaning the version number is included in the API endpoint URL. This approach delivers several advantages, including simplicity, testability, and improved caching support. 
+
 ## Path-based versioning explained
 
-BookHub Publisher API v2 uses **URI path versioning**. The version number appears in the URL path: 
+BookHub Publisher API v2 versions its endpoints in the URL path:
 
 ```http
 https://api.bookhub.com/api/{version}/books
 ```
 
-### Version paths
 
-- **v1**: `https://api.bookhub.com/api/v1/books` (Legacy)
-- **v2**: `https://api.bookhub.com/api/v2/books` (Current)
+| Version | Endpoint URL                           | Status      |
+| ------- | -------------------------------------- | ----------- |
+| **v1**  | `https://api.bookhub.com/api/v1/books` | Legacy      |
+| **v2**  | `https://api.bookhub.com/api/v2/books` | Current     |
 
-### Why is it different from header-based?
+## Advantages of path-based versioning
 
-Path-based versioning was chosen for v2 instead of header-based because:
+BookHub Publisher API v2 uses path-based, not header-based, versioning because:
 
-- **Simplicity**: Version is in the URL, no need to remember custom headers
-- **Testability**: Easy to test in browser, curl, and Postman
-- **Caching**: Standard HTTP caching works naturally
-- **Documentation**: Clearer for developers to understand
+* **Simplicity**: Version is in the URL, no need to remember custom headers
+* **Testability**: Easy to test in browser, curl, and Postman
+* **Caching**: Standard HTTP caching works naturally
+* **Documentation**: Clearer for developers to understand
 
-### Version support policy
+## Version support policy
 
-- **v1**: Supported until December 31, 2026
-- **v2**: Current version, recommended for all new integrations
-- **Deprecation notice**: 12 months' advance notice before any version is deprecated
+* **v1**: Supported until December 31, 2026. After this date, v1 endpoints will return `410 Gone`. Migrate to v2 before the deadline.
+* **v2**: This is the current version. Use for all new integrations. Ongoing support is planned for the foreseeable future.
+* **Deprecation notice**: The BookHub Publisher API provides 12 months' notice before any version is deprecated.
+* **Backward compatibility**: v2 is not backward compatible with v1; you must update your code to migrate.
 
 ## Next steps
 
-## Conceptual guides
+Explore related topics:
 
-* [Path-based versioning](/conceptual-guides/conceptual-guides-path-based-versioning) - Learn more about why we chose path-based versioning for the API.
+### How-to guides
+
+* [Migrate to BookHub Publisher API v2](./how-to-guides-migrate-bookhub) &mdash; Update your code to use the new v2 endpoints and features.
+* [Migrate away from title sorting](./how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
+
+### Reference
+
+* [API reference overview](/reference/reference-overview) &mdash; Detailed documentation for all API endpoints, parameters, and response formats.
 
 ---

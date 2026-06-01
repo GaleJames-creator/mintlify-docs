@@ -1,28 +1,44 @@
 ---
 title: 'Using the hitCount field for analytics'
-description: 'Understand how to use the `hitCount` field in the BookHub Publisher API to track book performance and make data-driven decisions.'
+description: 'Understand the `hitCount` field in the BookHub Publisher API.'
 ---
 
 import Hitcount from '/snippets/hitcount.mdx';
 
 <Hitcount />
 
-The following examples show how to use the `hitCount` field correctly and what to avoid.
+<Note>
+The `hitCount` field is available only in v2. It is not supported in v1.
+</Note>
+
 This metric helps publishers:
 
-- **Gauge interest** in specific titles
-- **Identify trending books** before they become bestsellers.
-- **Measure marketing effectiveness** by post-campaign views.
-- **Make data-driven decisions** about inventory and pricing.
+* **Gauge interest** in specific titles
+* **Identify trending books** before they become bestsellers
+* **Measure marketing effectiveness** by post-campaign views
+* **Make data-driven decisions** about inventory and pricing
 
 ## How it works
 
-- The `hitCount` field is read-only and automatically incremented each time the endpoint is accessed.
-- The initial value for new books is `0`.
-- Available in v2 only — not supported in v1.
-- The count is per book and persists throughout the book's lifetime.
+The `hitCount` field is read-only and has an initial value of `0` when a book is created. Each time a customer retrieves the book's details via the `GET /v2/books/{bookId}` endpoint, the `hitCount` increments by `1`. This count is cumulative and persists throughout the book's lifetime, allowing you to track its performance over time.
 
-When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, the response will include the `hitCount` field, allowing you to see how many times that book's details have been viewed via the API. For example:
+The `hitCount` field is updated in real-time and reflects the total number of times a book's details have been accessed via the API. Update latency is minimal, but there may be slight delays during periods of high traffic. Client-side caching using `If-None-Match` and ETag headers returns a `304 Not Modified` response without incrementing `hitCount`, since no new API call reaches the server.
+
+Repeated requests from the same customer will increment the `hitCount` each time, as it counts API calls rather than unique users. However, requests from publishers and cached responses do not affect the `hitCount`. 
+
+Endpoint coverage for `hitCount`:
+
+| Endpoint | `hitCount` field in response? |
+| --- | --- |
+| `GET /v2/books/{bookId}` | Yes |
+| `GET /v2/books` | No |
+| `POST /v2/books` | No |
+| `DELETE /v2/books/{bookId}` | No |
+| `PATCH /v2/books/{bookId}/finalize` | No |
+
+For error responses and rate limit details, see [API endpoints](/reference/reference-api-endpoints#error-codes).
+
+When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, the response includes the `hitCount` field, allowing you to see how many times that book's details have been viewed via the API. For example:
 
 ```json
 {
@@ -35,45 +51,28 @@ When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, 
   }
 }
 ```
-<Note>
-The `hitCount` field is updated in real-time and reflects the total number of times a book's details have been accessed via the API.
-</Note>
-
-The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. This can be used to track the popularity and performance of books over time. The following examples show how to use the `hitCount` field correctly and what to avoid.
-
-### ✅ Good uses
-
-- Identifying trending books over weeks/months
-- Measuring marketing campaign effectiveness
-- Generating internal reports
-
-### ❌ Avoid
-
-- Making instant inventory decisions based on a single view count.
-- Using it as the sole metric for success.
-- Treating it as perfectly accurate (may have slight delays in updates).
 
 ## Use cases for `hitCount`
 
-- **Trending analysis**: Identify which books are getting the most attention
+<Note>The following Python examples are for illustrative purposes. Actual implementation may vary based on your programming language and setup.</Note>
+
+* **Trending analysis**: Identify which books are getting the most attention. The following example retrieves all books and sorts them by `hitCount` to find the top 10 most-viewed titles:
   
    ```python
-   # Get the top 10 most-viewed books
    all_books = fetch_all_books()
    trending = sorted(all_books, key=lambda x: x['hitCount'], reverse=True)[:10]
    ```
 
-- **Marketing ROI**: Compare hit counts before and after marketing campaigns
+* **Marketing ROI**: Compare hit counts before and after marketing campaigns. The following example measures the increase in views for a book after running a marketing campaign:
   
    ```python
    before_campaign = get_book('abc123')['hitCount']
-   # Run marketing campaign
    after_campaign = get_book('abc123')['hitCount']
    increase = after_campaign - before_campaign
    print(f"Campaign generated {increase} additional views")
    ```
 
-- **Inventory planning**: Prioritize books with high view counts for restocking
+* **Inventory planning**: Prioritize books with high view counts for restocking. The following example identifies books with a `hitCount` above a certain threshold and notifies the warehouse to restock:
   
    ```python
    if book['hitCount'] > 1000 and book['status'] == 'ACTIVE':
@@ -82,13 +81,14 @@ The `hitCount` field in the `BookWithAnalytics` schema provides a count of how m
 
 ## Next steps
 
+Explore related topics:
+
 ### How-to guides
 
 * [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
 
 ### Reference
 
-* [PHP example: Track high-performing books with hitCount](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the hitCount field in PHP.
+* [PHP example: Track high-performing books with `hitCount`](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
 
 ---
-

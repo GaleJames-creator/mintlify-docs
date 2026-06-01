@@ -1,17 +1,51 @@
 ---
 title: Pagination
-description: Understand how to retrieve paginated results when fetching data from the BookHub API.
+description: Understand how pagination works in the BookHub Publisher API.
 ---
 
-Pagination is a common technique used in APIs to manage large datasets by breaking them into smaller, more manageable chunks. The BookHub API uses pagination to limit the number of results returned in a single response, allowing you to fetch data in multiple requests.
+The BookHub API limits results per request, so retrieving a full dataset requires multiple requests.
 
-When you make a request to an endpoint that returns a list of items (e.g., `GET /v2/books`), the API includes pagination information in the response, such as the total number of items, the total number of pages, and the current page. You can use this information to implement logic in your application to fetch all items across multiple pages. For example, you can use a loop to make successive requests until you have retrieved all pages of results. This ensures that you can access the complete dataset without overwhelming the API or your application with too much data at once.
+When you request a list (e.g., `GET /v2/books`), the API returns the total number of items, the total number of pages, and the current page. See [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) for implementation details.
 
-The `totalPages` value is calculated server-side, based on `totalItems` and `itemsPerPage`. You do not need to compute it. 
+The server automatically calculates `totalPages` from `totalItems` and `itemsPerPage`; you do not need to compute it. For example, if there are 250 books and the page size is 100, `totalPages` will be 3. The first two pages will return 100 items each, and the last page will return the remaining 50 items. If `page` exceeds `totalPages`, the API returns `200 OK` with an empty `books` array.
 
-By implementing pagination as described, you can efficiently retrieve all books from the BookHub API, even when your catalog exceeds the API's page size limit. Always check the pagination details in the response to ensure you have fetched all available data.
+
+```json
+{
+  "status": "success",
+  "data": {
+    "books": [
+      {
+        "bookId": "abc123",
+        "title": "The Great Adventure",
+        "author": "Jane Smith"
+      }
+    ],
+    "pagination": {
+      "totalItems": 250,
+      "totalPages": 3,
+      "currentPage": 1,
+      "itemsPerPage": 100
+    }
+  }
+}
+```
+
+The `GET /v2/books` endpoint also accepts `status`, `sort`, and `order` parameters. See [API endpoints](/reference/reference-api-endpoints#get-all-books) for details.
+
+## Pagination parameters
+
+Pass `page` and `limit` as query parameters to control which page you receive:
+
+```http
+GET /v2/books?page=2&limit=100
+```
+
+The `page` parameter defaults to `1`, and `limit` defaults to `20` with a maximum of `100`. See [API endpoints](/reference/reference-api-endpoints#get-all-books) for the full parameter reference.
 
 ## Next steps
+
+Explore related topics:
 
 ### How-to guides
 
@@ -19,6 +53,6 @@ By implementing pagination as described, you can efficiently retrieve all books 
 
 ### Reference
 
-* [PHP example: Fetch all books with pagination](./reference/reference-code-examples#php-example-fetch-all-books-with-pagination) &mdash; Example code to handle pagination in PHP when fetching books from the BookHub API.
+* [API reference](/reference/reference-api-endpoints) &mdash; Detailed documentation for all API endpoints, parameters, and response formats.
 
 ---

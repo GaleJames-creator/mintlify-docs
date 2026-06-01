@@ -1,0 +1,39 @@
+---
+title: 'Rate limit headers'
+description: 'Understand how rate limit headers in API responses help you monitor and manage your BookHub API usage.'
+---
+
+The BookHub API includes rate limit headers in each response so you can monitor your current usage and limit status. The key headers to look for are:
+
+| Header Name | Description |
+|-------------|-------------| 
+| `X-RateLimit-Limit` | The total number of requests allowed in the current time window (e.g., 150). |
+| `X-RateLimit-Remaining` | The number of requests remaining in the current time window. |
+| `X-RateLimit-Reset` | The time when the current rate limit window resets, in UTC epoch seconds. |
+
+## Example response headers
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-RateLimit-Limit: 150
+X-RateLimit-Remaining: 120
+X-RateLimit-Reset: 1700000000
+```
+In this example, you have a limit of 150 requests per hour, with 120 requests remaining. The `X-RateLimit-Reset` value indicates when the limit will reset, allowing you to plan your API usage accordingly.
+
+## Next steps
+
+Explore related topics:
+
+### Reference
+
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
+* [Authentication](/reference/reference-authentication) &mdash; Information on using JWT for API authentication.
+
+### How-to guides
+
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code for BookHub Publisher API v2, covering new fields and sorting changes.
+* [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
+
+---

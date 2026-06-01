@@ -45,7 +45,8 @@
               "conceptual-guides/conceptual-guides-overview",
               "conceptual-guides/conceptual-guides-api-versioning-strategy",
               "conceptual-guides/conceptual-guides-path-based-versioning",
-              "conceptual-guides/conceptual-guides-hitcount-analytics"
+              "conceptual-guides/conceptual-guides-hitcount-analytics",
+              "conceptual-guides/conceptual-guides-pagination"
             ]
           },
             {
@@ -56,6 +57,7 @@
                 "reference/reference-documentation-information",
                 "reference/reference-breaking-changes",
                 "reference/reference-authentication",
+                "reference/reference-rate-limit-headers",
                 "reference/reference-api-endpoints",
                 "reference/reference-data-models",
                 "reference/reference-code-examples"

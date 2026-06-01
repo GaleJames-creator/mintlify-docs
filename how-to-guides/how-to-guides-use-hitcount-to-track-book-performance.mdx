@@ -17,6 +17,22 @@ Only buyer requests increment `hitCount` — publisher requests and cached respo
 * A valid JWT for authentication.
 * Access to your codebase that integrates with the BookHub Publisher API.
 
+## Tips
+
+The following examples show how to use the `hitCount` field correctly and what to avoid. See [hitCount Analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) for more information.
+
+### ✅ Good uses
+
+* Identifying trending books over weeks/months
+* Measuring marketing campaign effectiveness
+* Generating internal reports
+
+### ❌ Avoid
+
+* Making instant inventory decisions based on a single view count.
+* Using it as the sole metric for success.
+* Treating it as perfectly accurate (may have slight delays in updates).
+
 ## Step 1: Retrieve book details with `hitCount`
 
 To see the `hitCount` for a specific book, make a GET request to the `GET /v2/books/{bookId}` endpoint. 
@@ -158,14 +174,16 @@ print(f"{book['title']} ({book['bookId']}): {book['hitCount']} views")
 
 ## Next steps
 
+Explore related topics:
+
 ### Conceptual guides
 
-* [Using `hitCount` for analytics](./conceptual-guides-hitcount-analytics) &mdash; Understand how to use the `hitCount` field to track book performance.
+* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Understand how to use the `hitCount` field to track book performance.
 
 ### How-to guides
 
 * [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Step-by-step migration instructions for updating your code to v2.
-* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to stop using title sorting in BookHub Publisher API v2.
+* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 
 ### Reference
 

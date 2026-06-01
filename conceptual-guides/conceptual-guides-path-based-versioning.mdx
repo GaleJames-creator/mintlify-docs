@@ -3,22 +3,28 @@ title: 'Path-based versioning'
 description: 'Understand why the BookHub Publisher API uses path-based versioning.'
 ---
 
-Version 2 (v2) of the BookHub Publisher API uses URL-based versioning (e.g., /v2/books), unlike header-based approaches. This ensures all requests use the latest version and take advantage of new features and improvements.
+Version 2 (v2) of the BookHub Publisher API uses URL-based versioning, unlike header-based approaches. The version is specified in the URL path — for example, v1 uses `https://api.bookhub.com/api/v1/books`, and v2 uses `https://api.bookhub.com/api/v2/books`. This makes it explicit and easy to identify which API version you are interacting with. See [API versioning strategy](./conceptual-guides-api-versioning-strategy) for more details on our overall versioning approach.
 
 ## Why path-based versioning?
 
 Path-based versioning offers several advantages for the BookHub Publisher API:
 
-- **Simplicity**: The version is visible in the URL, making it easier to test and debug
-- **Caching**: Standard HTTP caches work naturally with different paths
-- **Browser testing**: You can test endpoints directly in a browser address bar
-- **Documentation clarity**: API documentation is clearer when versions are in the path
-- **Tool compatibility**: Works seamlessly with OpenAPI/Swagger tools
+* **Simplicity**: The version is visible in the URL, making it easier to test and debug
+* **Caching**: Standard HTTP caches work naturally with different paths
+* **Browser testing**: You can test endpoints directly in a browser address bar
+* **Documentation clarity**: API documentation is clearer when versions are in the path
+* **Tool compatibility**: Works seamlessly with OpenAPI/Swagger tools
 
 ## Next steps
 
-## Conceptual guides
+Explore related topics:
+
+### Conceptual guides
 
 * [API versioning strategy](./conceptual-guides-api-versioning-strategy) &mdash; Understand our overall approach to API versioning.
+
+### How-to guides
+
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use the new v2 endpoints and features.
 
 ---
