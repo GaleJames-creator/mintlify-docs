@@ -43,10 +43,10 @@ This project demonstrates:
 
 ## Contact
 
-**LinkedIn**: [linkedin.com/in/gale-james](https://www.linkedin.com/in/gale-james/)
-**Portfolio**: [github.com/GaleJames-creator/gale-james](https://github.com/GaleJames-creator/gale-james)
-**Doc-quality-evaluator**: [github.com/GaleJames-creator/doc-quality-evaluator](https://github.com/GaleJames-creator/doc-quality-evaluator)
-**Email**: [Available on LinkedIn]
+* **LinkedIn**: [linkedin.com/in/gale-james](https://www.linkedin.com/in/gale-james/)
+* **Portfolio**: [github.com/GaleJames-creator/gale-james](https://github.com/GaleJames-creator/gale-james)
+* **Doc-quality-evaluator**: [github.com/GaleJames-creator/doc-quality-evaluator](https://github.com/GaleJames-creator/doc-quality-evaluator)
+* **Email**: [Available on LinkedIn]
 
 ---
 Last updated:  June 2026
