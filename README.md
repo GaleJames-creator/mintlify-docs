@@ -1,55 +1,52 @@
-# Mintlify Starter Kit
+# BookHub Publisher API 
 
-Use the starter kit to get your docs deployed and ready to customize.
+**Live site**: [galejames.mintlify.app](https://galejames.mintlify.app)
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+This BookHub Publisher API documentation suite demonstrates my experience with Mintlify, OpenAPI 3.0.3, and the Diátaxis framework.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+BookHub Publisher API is a fictional REST API for managing book inventory on a marketplace platform, designed as a realistic portfolio artifact.
 
-**[Follow the quickstart guide](https://starter.mintlify.com/quickstart)**
+## Overview
 
-## AI-assisted writing
+The BookHub Publisher API project shows how to design, document, and deliver a REST API with best practices and modern tools.
 
-Set up your AI coding tool to work with Mintlify:
+## Deliverable
 
-```bash
-npx skills add https://mintlify.com/docs
-```
+The live site includes the full documentation suite built on Mintlify, with an interactive OpenAPI playground. The suite covers a quickstart guide, how-to guides, reference docs, and conceptual guides.
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+## Accomplishments
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+This project demonstrates:
 
-## Development
+* Designed and published a complete Diátaxis-structured API documentation suite for a fictional REST API
+* Authored an OpenAPI 3.0.3 specification with an interactive Mintlify playground
+* Built a docs-as-code workflow using Git, Markdown, and MDX
+* Configured the Mintlify platform, including navigation, Open in Claude, and Git-based timestamps
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+## Documentation scope
 
-```
-npm i -g mint
-```
+* Quickstart guide
+* 7 how-to guides covering migration, caching, pagination, rate limits, hitCount analytics, and idempotency
+* 4 conceptual guides
+* 8 reference docs covering API endpoints, data models, authentication, and release notes
+* A Python-based documentation quality evaluator built with the Anthropic API that scores docs against structured criteria and returns JSON feedback
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+## Technical skills demonstrated
 
-```
-mint dev
-```
+* OpenAPI 3.0.3 spec authoring
+* Mintlify platform configuration (docs.json, snippets, navigation)
+* GitHub Actions integration
+* Diátaxis framework applied across all doc types
+* Multi-language code examples (Python, JavaScript, Java, PHP)
 
-View your local preview at `http://localhost:3000`.
+---
 
-## Publishing changes
+## Contact
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+**LinkedIn**: [linkedin.com/in/gale-james](https://www.linkedin.com/in/gale-james/)
+**Portfolio**: [github.com/GaleJames-creator/gale-james](https://github.com/GaleJames-creator/gale-james)
+**Doc-quality-evaluator**: [github.com/GaleJames-creator/doc-quality-evaluator](https://github.com/GaleJames-creator/doc-quality-evaluator)
+**Email**: [Available on LinkedIn]
 
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+---
+Last updated:  June 2026
