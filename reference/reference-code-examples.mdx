@@ -1,11 +1,15 @@
 ---
 title: 'Code examples'
-description: 'Example code for interacting with the BookHub Publisher API.'
+description: 'Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.'
 ---
 
-This section provides example code snippets in various programming languages to help you get started with the BookHub Publisher API. These examples cover common use cases such as creating a book, retrieving book details, and handling analytics data.
+Example code snippets in Python, JavaScript, Java, and PHP for common BookHub Publisher API interactions, including creating books, retrieving book details, and handling analytics data.
 
-## Python example: Create and track book views
+For production use, implement comprehensive error handling for `401`, `429`, and network timeout scenarios. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits), [API endpoints error codes](/reference/reference-api-endpoints#error-codes), and [API endpoints parameters](/reference/reference-api-endpoints#get-all-books) for details.
+
+## Create and track book views
+
+The following Python example demonstrates how to create a new book, check the initial `hitCount`, finalize it, and track the `hitCount` as simulated views are made. 
 
 ```python
 import requests
@@ -50,7 +54,7 @@ if create_response.status_code == 201:
         headers=headers
     )
     book = detail_response.json()['data']
-    print(f"Initial hit count: {book['hitCount']}")  # Should be 1 (from this call)
+    print(f"Initial hit count: {book['hitCount']}")  # Publisher requests do not increment hitCount
     
     # 3. Finalize the book
     finalize_response = requests.patch(
@@ -77,7 +81,9 @@ else:
     print(create_response.json())
 ```
 
-## JavaScript example: List books with client-side title sort
+## List books with client-side title sort
+
+The following JavaScript example demonstrates how to retrieve a list of books sorted by creation date and then sort them by title on the client side. 
 
 ```javascript
 const axios = require('axios');
@@ -118,7 +124,7 @@ async function getBooksWithTitleSort(ascending = true) {
     
     console.log('\nBooks sorted by title (client-side):');
     sortedBooks.slice(0, 10).forEach((book, index) => {
-      console.log(`${index + 1}. ${book.title} (${book.hitCount} views)`);
+      console.log(`${index + 1}. ${book.title}`);
     });
     
     return sortedBooks;
@@ -136,7 +142,9 @@ async function getBooksWithTitleSort(ascending = true) {
 getBooksWithTitleSort(true);
 ```
 
-## Java example: Handle removed title sorting
+## Handle removed title sorting
+
+The following Java example demonstrates how to handle an error when attempting to use the removed `sort=title` parameter in the BookHub Publisher API v2. The API will return a `400 Bad Request` error with a message indicating that only `sort=createdDate` is supported.
 
 ```java
 import java.net.http.*;
@@ -196,7 +204,9 @@ public class BookHubV2Client {
 }
 ```
 
-## PHP example: Track high-performing books with hitCount
+## Track high-performing books with `hitCount`
+
+The following PHP example demonstrates how to retrieve a list of active books, check their `hitCount`, and identify high-performing books with more than 500 views. 
 
 ```php
 <?php
@@ -273,18 +283,19 @@ foreach ($high_performers as $index => $book) {
 
 ## Next steps
 
+Explore related topics:
+
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Understand how to use the `hitCount` field to track book performance.
+* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Learn how to use the new hitCount field effectively.
+* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to analyze book performance trends over time.
 
 ### Reference
 
-* [Release notes](./reference/reference-release-notes) &mdash; See all changes in v2, including the addition of the `hitCount` field and how it can be used for analytics.
-* [API reference](/reference/reference-api) &mdash; Offers documentation for BookHub Publisher API v2, with details on new sorting options and the `hitCount` field.
-* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
+* [Release notes](./reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
 
 ---

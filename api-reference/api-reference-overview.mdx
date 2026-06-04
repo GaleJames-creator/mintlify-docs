@@ -1,20 +1,20 @@
 ---
-title: 'BookHub Publisher API reference'
-description: 'An overview of the BookHub Publisher API, including versioning, authentication, and available endpoints.'
+title: 'API reference overview'
+description: 'Get an overview of the BookHub Publisher API, including versioning, authentication, and available endpoints.'
 ---
 
 The BookHub Publisher API enables programmatic management of book inventory on the BookHub marketplace. This reference covers the available endpoints, request and response formats, and error handling.
 
 ## Versioning
 
-The API uses URI path-based versioning (see also [Versioning](/reference/reference-breaking-changes#versioning)). The following versions are currently available:
+The API uses URI path-based versioning. The following versions are currently available:
 
-- **v1**: Initial stable release — `https://api.bookhub.com/api/v1`
-- **v2**: Current version with analytics features — `https://api.bookhub.com/api/v2`
+- `v1`: Initial stable release &mdash; `https://api.bookhub.com/api/v1`
+- `v2`: Current version with analytics features &mdash; `https://api.bookhub.com/api/v2`
 
 ## Authentication
 
-All API requests require authentication using a JWT bearer token. For details, see the [Authentication](/reference/reference-authentication) section.
+All API requests require authentication using a JWT. For details, see [Authentication](/reference/reference-authentication).
 
 ## Endpoints
 
@@ -28,14 +28,15 @@ The following endpoints are available in v2:
 | `/books/{bookId}` | `DELETE` | Delete a book |
 | `/books/{bookId}/finalize` | `PATCH` | Finalize a book |
 
-See [Endpoints](/api-reference/endpoint/createBook) for interactive endpoint documentation and request examples.
+See the [API Reference](/api-reference/endpoint/createBook) tab for the interactive endpoint playground with live request examples.
 
 ## Error handling
 
-The API uses standard HTTP status codes to indicate success or failure. Error responses return a JSON object with a `status` and `message` field. For a complete list of error codes, see [API endpoints](/reference/reference-api-endpoints).
+The API returns the following status codes: `200 OK`, `201 Created`, `204 No Content`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, and `429 Too Many Requests`. Error responses include a `status` and `message` field, and an `errors` array for field-level validation failures. For details, see [API endpoints](/reference/reference-api-endpoints#error-codes).
 
 ## Rate limiting
 
-All versions support 150 requests per minute. Exceeded requests return a `429` response with rate limit headers. For more information, see the [API endpoints](/reference/reference-api-endpoints) and [monitor rate limits](/reference/reference-rate-limits) sections.
+All versions support 150 requests per minute. Exceeded requests return a `429` response with rate limit headers. For more information, see the [API endpoints](/reference/reference-api-endpoints) and [Rate limit headers](/reference/reference-rate-limit-headers) sections.
 
 ---
+[← Back to landing page](../index)

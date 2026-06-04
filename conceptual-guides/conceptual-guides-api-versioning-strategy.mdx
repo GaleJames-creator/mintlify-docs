@@ -16,8 +16,8 @@ https://api.bookhub.com/api/{version}/books
 
 | Version | Endpoint URL                           | Status      |
 | ------- | -------------------------------------- | ----------- |
-| **v1**  | `https://api.bookhub.com/api/v1/books` | Legacy      |
-| **v2**  | `https://api.bookhub.com/api/v2/books` | Current     |
+| `v1`    | `https://api.bookhub.com/api/v1/books` | Legacy      |
+| `v2`    | `https://api.bookhub.com/api/v2/books` | Current     |
 
 ## Advantages of path-based versioning
 
@@ -30,8 +30,8 @@ BookHub Publisher API v2 uses path-based, not header-based, versioning because:
 
 ## Version support policy
 
-* **v1**: Supported until December 31, 2026. After this date, v1 endpoints will return `410 Gone`. Migrate to v2 before the deadline.
-* **v2**: This is the current version. Use for all new integrations. Ongoing support is planned for the foreseeable future.
+* v1: Supported until December 31, 2026. After this date, v1 endpoints will return `410 Gone`. Migrate to v2 before the deadline.
+* v2: This is the current version. Use for all new integrations. Ongoing support is planned for the foreseeable future.
 * **Deprecation notice**: The BookHub Publisher API provides 12 months' notice before any version is deprecated.
 * **Backward compatibility**: v2 is not backward compatible with v1; you must update your code to migrate.
 
@@ -41,7 +41,7 @@ Explore related topics:
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](./how-to-guides-migrate-bookhub) &mdash; Update your code to use the new v2 endpoints and features.
+* [Migrate to BookHub Publisher API v2](./how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
 * [Migrate away from title sorting](./how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 
 ### Reference

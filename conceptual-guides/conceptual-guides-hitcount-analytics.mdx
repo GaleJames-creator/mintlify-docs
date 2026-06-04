@@ -1,6 +1,6 @@
 ---
 title: 'Using the hitCount field for analytics'
-description: 'Understand the `hitCount` field in the BookHub Publisher API.'
+description: 'Learn about the `hitCount` field in the BookHub Publisher API.'
 ---
 
 import Hitcount from '/snippets/hitcount.mdx';
@@ -11,16 +11,11 @@ import Hitcount from '/snippets/hitcount.mdx';
 The `hitCount` field is available only in v2. It is not supported in v1.
 </Note>
 
-This metric helps publishers:
-
-* **Gauge interest** in specific titles
-* **Identify trending books** before they become bestsellers
-* **Measure marketing effectiveness** by post-campaign views
-* **Make data-driven decisions** about inventory and pricing
+Use `hitCount` to measure interest in specific titles, such as tracking post-campaign views to assess marketing impact and make data-driven decisions about inventory and pricing. 
 
 ## How it works
 
-The `hitCount` field is read-only and has an initial value of `0` when a book is created. Each time a customer retrieves the book's details via the `GET /v2/books/{bookId}` endpoint, the `hitCount` increments by `1`. This count is cumulative and persists throughout the book's lifetime, allowing you to track its performance over time.
+The `hitCount` field is read-only and has an initial value of `0` when a book is created. Each time customers retrieve the book's details via the `GET /v2/books/{bookId}` endpoint, the `hitCount` increments by `1`. This count is cumulative and persists throughout the book's lifetime, allowing you to track its performance over time.
 
 The `hitCount` field is updated in real-time and reflects the total number of times a book's details have been accessed via the API. Update latency is minimal, but there may be slight delays during periods of high traffic. Client-side caching using `If-None-Match` and ETag headers returns a `304 Not Modified` response without incrementing `hitCount`, since no new API call reaches the server.
 

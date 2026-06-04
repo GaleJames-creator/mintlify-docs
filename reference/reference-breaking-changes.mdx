@@ -1,40 +1,33 @@
 ---
 title: 'Breaking changes'
-description: 'Important information about breaking changes in the BookHub Publisher API.'
+description: 'Highlights important information about breaking changes in the BookHub Publisher API.'
 ---
 
-This section covers the breaking changes in version 2.0 of the BookHub Publisher API. If you use version 1, review these changes for a smooth migration to v2.
+This section highlights the breaking changes in v2 of the BookHub Publisher API. If you use v1, review these changes for a smoother migration.
 
 ## Title sorting removed (breaking change)
 
-**v2 no longer supports title sorting** in the GET all books endpoint. If you use title sorting, migration is needed.
-### Why was title sorting removed?
+v2 does not support title sorting in GET all books. If you use title sorting, see [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) for the steps to update.
 
-BookHub removed title sorting due to:
+### v1 vs. v2 behavior
 
-- **Performance concerns**: Text-based sorting on large datasets is computationally expensive.
-- **Internationalization**: Sorting differs across languages.
-- **Case sensitivity**: Mixed case sorting is ambiguous.
-- **Limited usage**: Analytics showed less than 3% of requests used title sorting
-- **Alternatives**: Date-based sorting is more stable and efficient.
+The `sort` parameter in GET all books endpoint has changed. In v1, you could sort by `title`. In v2, sorting is supported only by `createdDate`.
 
-### What this means
-
-In **v1**, this worked:
+In v1, this worked:
 
 ```http
 GET /v1/books?sort=title&order=asc
 ```
 
-#### ❌ Invalid request example
+#### ❌ Invalid request
 
-In **v2**, this won't work:
+In v2, this won't work:
 
 ```http
 GET /v2/books?sort=title&order=asc
 ```
 
-#### Returns a `400` error
+**Returns a `400` error**
 
 ```json
 {
@@ -48,15 +41,17 @@ GET /v2/books?sort=title&order=asc
 }
 ```
 
-#### ✅ Valid request example
+#### ✅ Valid request
 
-In **v2**, use this instead:
+In v2, use this instead:
 
 ```http
 GET /v2/books?sort=createdDate&order=desc
 ```
 
 ### Available sort options in v2
+
+If you use `order` without `sort`, the default `sort=createdDate` applies. Pagination parameters (`page`, `limit`) and filtering (`status`) are unchanged from v1.
 
 The `sort` parameter now accepts **only one value**:
 
@@ -67,24 +62,31 @@ The `order` parameter still works:
 - `asc`: Ascending (oldest to newest)
 - `desc`: Descending (newest to oldest, default)
 
+## Known issues
+
+The BookHub Publisher API v2 has the following known issues that will be addressed in future versions:
+
+### `validation_context` and `provided_value` use snake_case
+
+The `validation_context` and `provided_value` fields in the error response schema use snake_case rather than the camelCase convention used throughout the rest of the API. This inconsistency will be corrected in a future version. Plan your error handling code accordingly.
+
 ## Next steps
 
 Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Understand how to use the `hitCount` field to track book performance.
+* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Step-by-step migration instructions for updating your code to v2.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 
 ### Reference
 
-* [Release notes for v2.0](/reference/reference-release-notes) &mdash; Lists all changes in version 2.0 of the BookHub Publisher API, such as removing title sorting and adding the `hitCount` field.
-* [Breaking changes in v2](/reference/reference-breaking-changes) &mdash; Details all breaking changes in version 2.0 of the BookHub Publisher API.
-* [API reference](/reference/reference-api) &mdash; Offers documentation for BookHub Publisher API v2, with details on new sorting options and the `hitCount` field.
-* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
+* [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
 ---

@@ -21,12 +21,6 @@
             ]
           },
           {
-            "group": "Tutorials",
-            "pages": [
-              "tutorials/tutorials-overview"
-            ]
-          },
-          {
             "group": "How-to guides",
             "pages": [
               "how-to-guides/how-to-guides-overview",

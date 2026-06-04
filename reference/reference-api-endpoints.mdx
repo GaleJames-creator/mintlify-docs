@@ -1,13 +1,13 @@
 ---
 title: 'API endpoints'
-description: 'Detailed documentation for each BookHub Publisher API endpoint, including request/response examples and field definitions.'
+description: 'Explore all available API endpoints and their parameters for BookHub Publisher API v2.'
 ---
 
 import IsbnNote from '/snippets/isbn-note.mdx';
 
 This section provides detailed documentation for each BookHub Publisher API endpoint, including request and response examples, field definitions, and usage notes. For an overview of the API and its features, see the [API reference overview](/reference/reference-overview).
 
-<Note>All endpoints return `401` for invalid tokens and `404` when a bookId doesn't exist. Endpoint-specific errors are documented inline.</Note>
+<Note>All endpoints return `401` for invalid tokens and `404` when a `bookId` doesn't exist. Endpoint-specific errors are documented inline.</Note>
 
 ## Create book
 
@@ -19,8 +19,10 @@ Creates a new book with `PENDING` status. Books must be finalized before becomin
 POST /v2/books
 ```
 
-### Create book request example
+### Create a book request
+
 <IsbnNote />
+
 <Note>`Idempotency-Key` is recommended for all `POST` requests to prevent duplicate book creation. If omitted, retried requests may create duplicate books. `X-Request-ID` helps track requests in logs. `X-Publisher-ID` scopes the request to a specific publisher account.</Note>
 
 ```bash
@@ -113,11 +115,11 @@ Changes a book's status from `PENDING` to `ACTIVE`, making it visible to custome
 PATCH /v2/books/{bookId}/finalize
 ```
 
-### Finalize book path parameters
+### Path parameters for finalize book
 
 - `bookId` (required): Unique identifier of the book to finalize
 
-### Finalize book request example
+### Finalize book request
 
 <Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
 
@@ -131,7 +133,7 @@ curl https://api.bookhub.com/api/v2/books/{bookId}/finalize \
   }'
 ```
 
-### Finalize book request parameters
+### Request parameters for finalize book
 
 | Parameter | Location | Type   | Required | Description                              |
 | --------- | -------- | ------ | -------- | ---------------------------------------- |
@@ -177,21 +179,21 @@ If the book is not in `PENDING` status:
 
 ---
 
-## Get single book
+## Get a single book
 
 Retrieves detailed information about a specific book.
 
-### Get single book endpoint
+### Get a single book endpoint
 
 ```http
 GET /v2/books/{bookId}
 ```
 
-### Get single book path parameters
+### Path parameters for get a single book
 
 - `bookId` (required): Unique identifier of the book
 
-### Get single book request example
+### Get a single book request
 
 <Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
 
@@ -242,7 +244,7 @@ The `hitCount` field provides basic analytics:
 - **Initial value**: 0 for newly created books
 - **Read-only**: Cannot be modified directly via API
 
-### Response headers
+### Response headers for get a single book
 
 ```bash
 ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
@@ -273,7 +275,7 @@ GET /v2/books
 | `sort`    | enum    | No       | createdDate | **v2 only accepts `createdDate`**.      |
 | `order`   | enum    | No       | desc        | Sort order: asc or desc                 |
 
-### ✅ Valid get all books request examples
+### ✅ Valid get all books request
 
 #### Sort by creation date, newest first (default)
 
@@ -293,7 +295,7 @@ GET /v2/books?sort=createdDate&order=asc
 GET /v2/books
 ```
 
-### ❌ Invalid get all books request example
+### ❌ Invalid get all books request
 
 ```http
 GET /v2/books?sort=title&order=asc
@@ -313,7 +315,7 @@ Returns a `400` error:
 }
 ```
 
-### Get all books request example
+### Get all books request
 
 ```bash
 curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&sort=createdDate&order=desc" \
@@ -322,8 +324,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&
 
 ### Get all books response (200 OK)
 
-<Note> The `hitCount` is not included in the paginated results (only in `GET /v2/books/{bookId}`).</Note>
-
+<Important>The `hitCount` field is not included in paginated results. To retrieve `hitCount`, use `GET /v2/books/{bookId}` for each book individually.</Important>
 
 ```json
 {
@@ -385,12 +386,14 @@ curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&
 }
 ```
 
-### Get all books response headers
+### Response headers for get all books
 
 The BookHub API includes the following headers in each response to help you monitor your rate limit status:
 
 | Header | Type | Description |
-|--------|-------------|
+|--------|------|-------------|
+| `X-Total-Count` | Integer | Total number of books matching the filters |
+| `Link` | String | Pagination links for next and last pages |
 | `X-RateLimit-Limit` | Integer | Maximum requests allowed per minute |
 | `X-RateLimit-Remaining` | Integer | Requests remaining in the current window |
 | `X-RateLimit-Reset` | Integer (Unix timestamp) | Unix timestamp when the rate limit window resets |
@@ -408,7 +411,8 @@ X-RateLimit-Reset: 1735128600
 
 ## Delete a book
 
-Permanently deletes an `INACTIVE` book from the BookHub marketplace.
+Permanently removes `INACTIVE` books from the BookHub marketplace. Deleting a book removes it from search results and future queries, reducing catalog clutter. 
+
 
 ### Delete book endpoint
 
@@ -416,11 +420,11 @@ Permanently deletes an `INACTIVE` book from the BookHub marketplace.
 DELETE /v2/books/{bookId}
 ```
 
-### Delete book path parameters
+### Path parameters for delete a book
 
 - `bookId` (required): Unique identifier of the book to delete
 
-### Delete book request example
+### Delete book request
 
 <Note>Replace `{bookId}` with the actual book ID returned in the `Create book` response (e.g., `abc123`).</Note>
 
@@ -442,12 +446,6 @@ A successful delete returns `204 No Content` with no response body.
 ### Delete book error responses
 
 **`401 Unauthorized`** &mdash; missing or invalid JWT:
-
-```json
-{
-  "status": "error",
-  "message": "Unauthorized"
-}
 
 ```json
 {
@@ -489,18 +487,18 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [Using the hitCount field for analytics](/conceptual-guides/conceptual-guides-using-hitcount-for-analytics) &mdash; Learn how to leverage the `hitCount` field for insights.
-* [Code examples](/reference/reference-code-examples) &mdash; Example code for interacting with the BookHub Publisher API.
+* [Using the hitCount field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Step-by-step migration instructions for updating your code to v2.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 * [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
-* [Data models](/reference/reference-data-models) &mdash; Detailed information about the data models used in the API, including the `hitCount` field.
+* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for the BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
 ---

@@ -8,15 +8,19 @@ info:
     ## What's new in v2
     
     ### New features
+    
     - **Hit count tracking**: The GET /v2/books/{bookId} endpoint now returns a `hitCount` field showing how many times a book has been viewed
     
     ### Breaking changes
+
     - **Removed title sorting**: The GET /v2/books endpoint no longer supports sorting by title. Use `createdDate` sorting instead
     
     ## Versioning
+
     The API uses URI path versioning:
-    - v1: Initial stable release (https://api.bookhub.com/api/v1/books)
-    - v2: Latest version with analytics features (https://api.bookhub.com/api/v2/books)
+
+    - `v1`: Initial stable release (https://api.bookhub.com/api/v1/books)
+    - `v2`: Latest version with analytics features (https://api.bookhub.com/api/v2/books)
     
     ## Rate limiting
     All versions: 150 requests/minute
@@ -257,12 +261,15 @@ components:
               description: |
                 Number of times this book has been retrieved by buyers (v2 only).
                 
-                <hitcount />
+                The `hitCount` increments each time a buyer retrieves the book via `GET /v2/books/{bookId}`. Requests authenticated with publisher credentials do not increment the count. Use it to track the popularity and performance of books over time. 
               example: 1247
               readOnly: true
-
     ErrorResponse:
       type: object
+      description: |
+        Error response returned when an API request fails.
+        Note: `validation_context` and `provided_value` use snake_case rather than camelCase — 
+        this is a known inconsistency that will be addressed in a future version.
       required:
         - status
         - message
@@ -302,7 +309,7 @@ components:
                     example: "pattern_match"
                   constraint:
                     type: object
-                    example: { "pattern": "^(?:ISBN(?:-1[03])?:? )?..." }
+                    example: { "pattern": "^[0-9]{13}$" }
                   provided_value:
                     type: string
                     example: "invalid-isbn"
@@ -605,6 +612,9 @@ paths:
         - Only `PENDING` books can be finalized
         - This operation is idempotent
         - The book becomes immediately available to customers
+        
+        ## Request body
+        The request body is optional. If omitted, the book is finalized without notes.
       operationId: finalizeBook
       tags:
         - Books
