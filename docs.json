@@ -48,7 +48,7 @@
               "pages": [
                 "reference/reference-overview",
                 "reference/reference-release-notes",
-                "reference/reference-documentation-information",
+                "reference/reference-document-information",
                 "reference/reference-breaking-changes",
                 "reference/reference-authentication",
                 "reference/reference-rate-limit-headers",
