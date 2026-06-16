@@ -126,7 +126,12 @@
       "linkedin": "https://linkedin.com/in/gale-james"
     }
   },
-  "metadata": {
+"metadata": {
     "timestamp": true
+  },
+  "integrations": {
+    "custom": [
+      { "src": "https://bookhub-agent-runtime.vercel.app/widget.js" }
+    ]
   }
 }
