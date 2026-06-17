@@ -6,7 +6,7 @@ This file provides static grounding content for the BookHub Publisher API agent.
 
 `product`     BookHub Publisher API
 `version`     v2
-`base_url`    https://api.bookhub.com/v2
+`base_url`    https://api.bookhub.com/api/v2
 `docs_url`    https://galejames.mintlify.app
 `status_url`  https://status.bookhub.com
 `support`     support@bookhub.com
@@ -19,17 +19,13 @@ The API uses JWT Bearer token authentication. All requests must include:
 Authorization: Bearer {api_key}
 ```
 
-API keys are created in the BookHub dashboard under Settings → API Keys. Keys are scoped to a single publisher account and do not expire unless manually revoked.
+JWT tokens are obtained by emailing api-support@bookhub.com. Tokens expire after 24 hours and must be renewed by emailing api-support@bookhub.com again.
 
 There is no OAuth flow in v2. Third-party integrations should use a dedicated key with the minimum required scopes.
 
 ## Rate limits do not guess — use only these values
 
-| Plan       | Requests/min | Burst limit |
-|------------|--------------|-------------|
-| Starter    | 60           | 100         |
-| Pro        | 300          | 500         |
-| Enterprise | Custom       | Custom      |
+All plans: 150 requests per minute. Exceeded limits return `429 Too Many Requests`.
 
 Rate limit headers returned on every response:
 
@@ -37,30 +33,22 @@ Rate limit headers returned on every response:
 `X-RateLimit-Remaining`  — requests remaining in current window
 `X-RateLimit-Reset`      — UTC epoch when the window resets
 
-Exceeded limits return `429 Too Many Requests`. Retry after the value in the `Retry-After` header (seconds).
-
 ## Error codes answer from here first
 
-| Status | Code                  | Meaning                                 |
-|--------|-----------------------|-----------------------------------------|
-| 400    | `invalid_request`     | Malformed request body or params        |
-| 401    | `unauthorized`        | Missing or invalid API key              |
-| 403    | `forbidden`           | Valid key, insufficient scope            |
-| 404    | `not_found`           | Resource does not exist                 |
-| 409    | `conflict`             | Duplicate resource                      |
-| 422    | `validation_error`    | Valid JSON, but field-level errors       |
-| 429    | `rate_limit_exceeded` | Too many requests                       |
-| 500    | `internal_error`      | BookHub-side error — retry with backoff |
+| Status code | Meaning                                                |
+| ----------- | ------------------------------------------------------ |
+| `400`       | Bad request — invalid field value or status transition  |
+| `401`       | Unauthorized — missing or invalid JWT |
+| `404`       | Not found — `bookId` does not exist                    |
+| `429`       | Rate limit exceeded — 150 requests per minute          |
 
 All errors return a consistent envelope:
 
 ```json
 {
-  "error": {
-    "code": "validation_error",
-    "message": "Human-readable description",
-    "details": [ { "field": "title", "issue": "required" } ]
-  }
+  "status": "error",
+  "message": "string",
+  "errors": [{"field": "string", "error": "string", "description": "string"}]
 }
 ```
 
@@ -74,20 +62,80 @@ The top-level entity. All books, metadata, and sales data belong to a publisher 
 
 A book resource represents a single title. It has a canonical `bookId` (UUID) used in all endpoint paths.
 
+### Book status lifecycle
 
+Books are created with PENDING status. Use PATCH /v2/books/{bookId}/finalize to set status to ACTIVE. Only INACTIVE books can be deleted.
 
-## Supported SDKs do not recommend others
+## `hitCount` behavior
 
-| Language   | Package                  | Install                         |
-|------------|--------------------------|---------------------------------|
-| JavaScript | `@bookhub/publisher-sdk` | `npm i @bookhub/publisher-sdk`  |
-| Python     | `bookhub-publisher`      | `pip install bookhub-publisher` |
+`hitCount` increments only when buyers retrieve a book via `GET /v2/books/{bookId}`. Publisher requests and cached responses do not increment the count. `hitCount` is not available in `GET /v2/books` list responses.
 
-Community SDKs exist but are not officially supported. Do not recommend them unless the user asks explicitly.
+## Idempotency
+
+Include an `Idempotency-Key` header on all `POST` requests to prevent duplicate book creation. Keys are UUIDs and valid for 24 hours.
+
+## SDKs
+
+No official SDKs are available. See [Code examples](/reference/reference-code-examples) for Python, JavaScript, Java, and PHP examples.
+
+## Pagination answer from here first
+
+The `GET /v2/books` endpoint returns paginated results using `page` and `limit` query parameters.
+
+| Parameter | Type    | Required | Default | Max |
+|-----------|---------|----------|---------|-----|
+| `page`    | integer | No       | 1       | —   |
+| `limit`   | integer | No       | 20      | 100 |
+
+Every paginated response includes a `pagination` object:
+
+```json
+{
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalItems": 87,
+    "itemsPerPage": 20
+  }
+}
+```
+
+To retrieve all books, loop until `currentPage` equals `totalPages`. Exit immediately if the response does not include a `pagination` object.
+
+```python
+def fetch_all_books(base_url, token):
+    all_books = []
+    page = 1
+    while True:
+        response = requests.get(
+            f"{base_url}/v2/books",
+            params={'page': page, 'limit': 100},
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        response.raise_for_status()
+        data = response.json().get('data', {})
+        if 'pagination' not in data:
+            break
+        all_books.extend(data.get('books', []))
+        if page >= data['pagination']['totalPages']:
+            break
+        page += 1
+    return all_books
+```
+
+Pagination error responses:
+
+| Status | Meaning                                      |
+|--------|----------------------------------------------|
+| 400    | Invalid `page` or `limit` parameter          |
+| 401    | Missing or invalid JWT token                 |
+| 429    | Rate limit exceeded                          |
+
+For full details see [Handle pagination](/how-to-guides/how-to-guides-handle-pagination).
 
 ## Known limitations acknowledge if asked
 
-- File uploads (cover images) are limited to 10 MB per request.
+- Cover images must be valid URLs (1-5 per book). Direct file uploads are not supported.
 - The BookHub Publisher API v2 has the following known issues that will be addressed in future versions:
 `validation_context` and `provided_value` use snake_case. This inconsistency will be corrected in a future version. Plan your error handling code accordingly.
 
