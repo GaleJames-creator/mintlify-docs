@@ -57,6 +57,8 @@
     }
     .bh-msg.assistant code {
       font-family: monospace; font-size: 12px;
+      background: #dde4f0; color: #1e3a6e;
+      padding: 1px 4px; border-radius: 3px;
     }
     .bh-msg.assistant pre code {
       background: none; padding: 0;
