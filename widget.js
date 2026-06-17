@@ -1,6 +1,11 @@
 (function () {
   const PROXY_URL = 'https://bookhub-agent-runtime.vercel.app/api/agent'
 
+  // ── Load marked.js for Markdown rendering ───────────────────────────────────
+  const script = document.createElement('script')
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js'
+  document.head.appendChild(script)
+
   // ── Styles ──────────────────────────────────────────────────────────────────
   const style = document.createElement('style')
   style.textContent = `
@@ -33,14 +38,39 @@
     }
     .bh-msg {
       padding: 8px 12px; border-radius: 8px;
-      max-width: 85%; line-height: 1.5; white-space: pre-wrap;
+      max-width: 85%; line-height: 1.5;
       font-size: 13px;
     }
     .bh-msg.user {
       align-self: flex-end; background: #2563EB; color: #fff;
+      white-space: pre-wrap;
     }
     .bh-msg.assistant {
       align-self: flex-start; background: #f3f4f6; color: #111;
+    }
+    .bh-msg.assistant p { margin: 4px 0; }
+    .bh-msg.assistant ul, .bh-msg.assistant ol { margin: 4px 0; padding-left: 18px; }
+    .bh-msg.assistant pre {
+      background: #e8e8e8; padding: 8px 10px;
+      border-radius: 4px; overflow-x: auto;
+      font-size: 12px; margin: 6px 0;
+    }
+    .bh-msg.assistant code {
+      font-family: monospace; font-size: 12px;
+    }
+    .bh-msg.assistant pre code {
+      background: none; padding: 0;
+    }
+    .bh-msg.assistant table {
+      border-collapse: collapse; width: 100%;
+      margin: 6px 0; font-size: 12px;
+    }
+    .bh-msg.assistant th, .bh-msg.assistant td {
+      border: 1px solid #ccc; padding: 4px 8px; text-align: left;
+    }
+    .bh-msg.assistant th { background: #f0f0f0; }
+    .bh-msg.assistant h2, .bh-msg.assistant h3 {
+      font-size: 13px; font-weight: 600; margin: 8px 0 4px;
     }
     #bh-empty {
       color: #9ca3af; font-size: 13px; margin: 0;
@@ -103,6 +133,15 @@
     if (open) inputEl.focus()
   })
 
+  // ── Markdown rendering ──────────────────────────────────────────────────────
+  function renderMarkdown(text) {
+    if (typeof marked !== 'undefined') {
+      return marked.parse(text)
+    }
+    // Fallback: plain text with line breaks
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')
+  }
+
   // ── Send message ────────────────────────────────────────────────────────────
   async function send() {
     const text = inputEl.value.trim()
@@ -146,7 +185,7 @@
             const token = json?.delta?.text
             if (token) {
               assistantText += token
-              assistantBubble.textContent = assistantText
+              assistantBubble.innerHTML = renderMarkdown(assistantText)
               messagesEl.scrollTop = messagesEl.scrollHeight
             }
           } catch { /* skip malformed SSE lines */ }
@@ -168,7 +207,11 @@
   function appendBubble(role, text) {
     const div = document.createElement('div')
     div.className = `bh-msg ${role}`
-    div.textContent = text
+    if (role === 'assistant') {
+      div.innerHTML = renderMarkdown(text)
+    } else {
+      div.textContent = text
+    }
     messagesEl.appendChild(div)
     messagesEl.scrollTop = messagesEl.scrollHeight
     return div
