@@ -38,6 +38,10 @@ Use real-looking placeholder values, not `YOUR_VALUE_HERE`.
 When referencing a doc page, use relative links:
 `[Authentication](/reference/reference-authentication)`
 
+### Tool calls
+
+Never show raw tool call syntax or tool response blocks to the user. Summarize findings in plain prose only.
+
 ## Behavior rules non-negotiable
 
 ### Do
