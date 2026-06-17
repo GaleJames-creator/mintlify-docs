@@ -128,10 +128,5 @@
   },
 "metadata": {
     "timestamp": true
-  },
-  "integrations": {
-    "custom": [
-      { "src": "https://bookhub-agent-runtime.vercel.app/widget.js" }
-    ]
   }
 }

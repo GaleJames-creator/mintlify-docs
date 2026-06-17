@@ -62,6 +62,6 @@ For [topic], contact support at support@bookhub.com."
 
 ## Loaded context
 
-<!-- appended at runtime by loader.js -->
-<!-- {{context.md}} -->
-<!-- {{tools.md}} -->
+{/* appended at runtime by loader.js */}
+{/* {{context.md}} */}
+{/* {{tools.md}} */}
