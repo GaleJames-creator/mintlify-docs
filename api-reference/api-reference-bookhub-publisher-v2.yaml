@@ -4,25 +4,26 @@ info:
   description: |
     BookHub's Publisher API enables programmatic management of book inventory on the BookHub marketplace. 
     This API uses path-based versioning (v1, v2) and requires authentication via JWTs.
-    
+
     ## What's new in v2
-    
+
     ### New features
-    
+
     - **Hit count tracking**: The GET /v2/books/{bookId} endpoint now returns a `hitCount` field showing how many times a book has been viewed
-    
+
     ### Breaking changes
 
     - **Removed title sorting**: The GET /v2/books endpoint no longer supports sorting by title. Use `createdDate` sorting instead
-    
+
     ## Versioning
 
     The API uses URI path versioning:
 
     - `v1`: Initial stable release (https://api.bookhub.com/api/v1/books)
     - `v2`: Latest version with analytics features (https://api.bookhub.com/api/v2/books)
-    
+
     ## Rate limiting
+
     All versions: 150 requests/minute
   version: '2.0.0'
   contact:
@@ -98,7 +99,7 @@ components:
       in: query
       description: |
         Sort field (v2 only supports createdDate)
-        
+
         > **Note**: Title sorting has been removed in v2. Use createdDate instead.
       schema:
         type: string
@@ -260,7 +261,7 @@ components:
               minimum: 0
               description: |
                 Number of times this book has been retrieved by buyers (v2 only).
-                
+
                 The `hitCount` increments each time a buyer retrieves the book via `GET /v2/books/{bookId}`. Requests authenticated with publisher credentials do not increment the count. Use it to track the popularity and performance of books over time. 
               example: 1247
               readOnly: true
@@ -346,13 +347,15 @@ components:
 
 paths:
   /books:
+    description: Endpoints for creating and managing books in the BookHub catalog.
     post:
       summary: Create a new book
       description: |
         Creates a new book with PENDING status. The book will not be visible to customers
         until it is finalized using the finalize endpoint.
-        
+
         ## Workflow
+
         1. Create book with PENDING status
         2. Review and verify book details
         3. Finalize book to make it ACTIVE
@@ -420,11 +423,14 @@ paths:
         Retrieves a paginated list of books for the authenticated publisher.
         
         ## v2 changes
+
         - **(breaking change)**: Title sorting has been removed. Use `createdDate` for sorting instead.
         - The `sort` parameter now only accepts `createdDate`
         
         ## Migration guide
+
         If you were using `sort=title`:
+
         - Replace with `sort=createdDate` (recommended)
         - Implement client-side sorting if title ordering is required
       operationId: getAllBooks
@@ -473,6 +479,7 @@ paths:
                     - bookId: "abc123"
                       title: "The Great Adventure"
                       author: "Jane Smith"
+                      description: "A thrilling adventure story set in the mountains of Peru."
                       status: "ACTIVE"
                       price: 24.99
                       createdDate: "2024-12-25T10:30:00Z"
@@ -487,12 +494,14 @@ paths:
           $ref: '#/components/responses/RateLimitError'
 
   /books/{bookId}:
+    description: Endpoint for retrieving or managing a specific book.
     get:
       summary: Get a specific book
       description: |
         Retrieves detailed information about a specific book.
         
         ## v2 changes
+
         - **(new)**: Returns `hitCount` field.
         - The `hitCount` increments each time a buyer retrieves the book via `GET /v2/books/{bookId}`. Requests authenticated with publisher credentials do not increment the count.
       operationId: getBook
@@ -552,10 +561,10 @@ paths:
                   createdDate: "2024-12-25T10:30:00Z"
                   updatedDate: "2024-12-26T15:45:00Z"
                   hitCount: 1247
-        '404':
-          $ref: '#/components/responses/NotFoundError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '429':
           $ref: '#/components/responses/RateLimitError'
     delete:
@@ -564,6 +573,7 @@ paths:
         Permanently deletes a book from the BookHub marketplace.
 
         ## Important notes
+
         - Only `INACTIVE` books can be deleted
         - This operation cannot be undone
         - Active books must be deactivated before deletion
@@ -595,25 +605,28 @@ paths:
                   - field: "status"
                     error: "INVALID_STATUS_TRANSITION"
                     description: "Book must be INACTIVE to delete. Current status: ACTIVE"
-        '404':
-          $ref: '#/components/responses/NotFoundError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '429':
           $ref: '#/components/responses/RateLimitError'
 
   /books/{bookId}/finalize:
+    description: Endpoint for making a book visible to customers.
     patch:
       summary: Finalize a book
       description: |
         Changes a book's status from PENDING to ACTIVE, making it visible to customers.
-        
+
         ## Important notes
+
         - Only `PENDING` books can be finalized
         - This operation is idempotent
         - The book becomes immediately available to customers
-        
+
         ## Request body
+        
         The request body is optional. If omitted, the book is finalized without notes.
       operationId: finalizeBook
       tags:
@@ -693,6 +706,8 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '429':
           $ref: '#/components/responses/RateLimitError'
           
