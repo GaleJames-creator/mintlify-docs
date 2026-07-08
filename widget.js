@@ -85,7 +85,10 @@
       flex: 1; padding: 8px 10px; border-radius: 6px;
       border: 1px solid #d1d5db; font-size: 13px;
       outline: none; font-family: system-ui, sans-serif;
+      color: #111;
+      background: #fff;
     }
+    #bh-input::placeholder { color: #9ca3af; }     
     #bh-input:focus { border-color: #2563EB; }
     #bh-send {
       padding: 8px 14px; border-radius: 6px;
