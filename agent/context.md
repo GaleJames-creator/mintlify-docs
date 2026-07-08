@@ -35,12 +35,13 @@ Rate limit headers returned on every response:
 
 ## Error codes answer from here first
 
-| Status code | Meaning                                                |
-| ----------- | ------------------------------------------------------ |
-| `400`       | Bad request — invalid field value or status transition  |
-| `401`       | Unauthorized — missing or invalid JWT |
-| `404`       | Not found — `bookId` does not exist                    |
-| `429`       | Rate limit exceeded — 150 requests per minute          |
+| Status code | Meaning                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| `400`       | Bad request — invalid field value or status transition or missing required Idempotency-Key header. |
+| `401`       | Unauthorized — missing or invalid JWT.                                                            |
+| `404`       | Not found — `bookId` does not exist.                                                              |
+| `409`       | Conflict — a book with this ISBN already exists.                                                   |
+| `429`       | Rate limit exceeded — 150 requests per minute.                                                    |
 
 All errors return a consistent envelope:
 
@@ -72,7 +73,7 @@ Books are created with PENDING status. Use PATCH /v2/books/{bookId}/finalize to 
 
 ## Idempotency
 
-Include an `Idempotency-Key` header on all `POST` requests to prevent duplicate book creation. Keys are UUIDs and valid for 24 hours.
+The `Idempotency-Key` header (UUID) is required on `POST /v2/books`. Requests without it return `400`. Reusing a key within its 24-hour validity window returns `200` with the existing book instead of creating a duplicate. Keys match on the key value only, not the request body &mdash; a new key with the same book data creates a new book.
 
 ## SDKs
 
@@ -125,11 +126,11 @@ def fetch_all_books(base_url, token):
 
 Pagination error responses:
 
-| Status | Meaning                                      |
-|--------|----------------------------------------------|
-| 400    | Invalid `page` or `limit` parameter          |
-| 401    | Missing or invalid JWT token                 |
-| 429    | Rate limit exceeded                          |
+| Status   | Meaning                                      |
+|----------|----------------------------------------------|
+| `400`    | Invalid `page` or `limit` parameter          |
+| `401`    | Missing or invalid JWT token                 |
+| `429`    | Rate limit exceeded                          |
 
 For full details see [Handle pagination](/how-to-guides/how-to-guides-handle-pagination).
 
@@ -144,7 +145,9 @@ For full details see [Handle pagination](/how-to-guides/how-to-guides-handle-pag
 ### v2 — 2026-01-02
 
 - Added the `hitCount` field to `GET /v2/books/{bookId}` endpoint
-- Added `DELETE /v2/books/{bookId}` endpoint
+- Added `DELETE /v2/books/{bookId}` endpoint.
+- The `POST /v2/books` endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
+- Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.
 
 ### v1 - Initial release
 
@@ -152,4 +155,6 @@ v1 is supported until December 31, 2026. After this date, v1 endpoints will retu
 
 ## Breaking changes in v2
 
-Removed `sort=title` from `GET /v2/books`. Use `sort=createdDate` instead.
+- Removed `sort=title` from `GET /v2/books`. Use `sort=createdDate` instead.
+- The `POST /v2/books` endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
+- Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.

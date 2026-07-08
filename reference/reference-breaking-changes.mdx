@@ -63,6 +63,14 @@ The `order` parameter still works:
 - `asc`: Ascending (oldest to newest)
 - `desc`: Descending (newest to oldest, default)
 
+## `Idempotency-Key` header
+
+The POST /v2/books endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
+
+## `409 Conflict` responses
+
+Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.
+
 ## Known issues
 
 The BookHub Publisher API v2 has the following known issues that will be addressed in future versions:
@@ -77,7 +85,7 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 

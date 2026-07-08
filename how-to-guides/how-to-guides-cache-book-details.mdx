@@ -4,7 +4,7 @@ description: 'Use ETag and Cache-Control headers to cache book details and reduc
 keywords: ['caching', '304 error', 'Not Modified', 'published date', 'updated date', 'coverImages', 'book format', 'hit count']
 ---
 
-import Prerequisites from '/snippets/prerequisites.mdx';
+import Prerequisites from '/snippets/prerequisites';
 
 The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers you can use to cache book details and reduce unnecessary API calls.
 
@@ -95,7 +95,7 @@ A `200 OK` response returns updated book details:
 {
   "status": "success",
   "data": {
-    "bookId": "abc123",
+    "bookId": "123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "author": "Jane Smith",
     "description": "An epic tale of courage and discovery",

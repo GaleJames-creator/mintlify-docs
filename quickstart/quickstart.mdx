@@ -4,9 +4,9 @@ description: 'Get up and running with the BookHub Publisher API v2 in minutes, i
 keywords: ['first API call', 'onboarding', 'getting started', 'quick start']
 ---
 
-import IsbnNote from '/snippets/isbn-note.mdx';
-import Hitcount from '/snippets/hitcount.mdx';
-import Prerequisites from '/snippets/prerequisites.mdx';
+import IsbnNote from '/snippets/isbn-note';
+import Hitcount from '/snippets/hitcount';
+import Prerequisites from '/snippets/prerequisites';
 
 ## Introduction
 
@@ -24,15 +24,16 @@ This quickstart walks you through the core BookHub Publisher API workflow: creat
 
 ## Step 1: Create a book (returns `PENDING` status)
 
-Send a `POST` request to the `/v2/books` endpoint with the required fields to create a book. The status will be `PENDING` until finalized. For required and optional fields, see the [API endpoints](./reference/reference-api-endpoints#create-a-book).
+Send a `POST` request to the `/v2/books` endpoint with the required fields to create a book. The status will be `PENDING` until finalized. For required and optional fields, see the [API endpoints](/reference/reference-api-endpoints#create-a-book).
 
-To avoid creating duplicates, add an `Idempotency-Key` header with a unique value. Use `X-Request-ID` to track requests in logs and `X-Publisher-ID` to target a publisher account. See [Add the `Idempotency-Key` header](./how-to-guides/how-to-guides-add-the-idempotency-key-header) for details.
+To avoid creating duplicates, the request requires an `Idempotency-Key` header with a unique value. Use `X-Request-ID` to track requests in logs and `X-Publisher-ID` to target a publisher account. See [Add the `Idempotency-Key` header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) for details.
 
 <IsbnNote />
 
 ```bash
 curl -X POST https://api.bookhub.com/api/v2/books \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Idempotency-Key: 550e8400-e29b-41d4-a716-446655430000" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "My New Book",
@@ -51,14 +52,14 @@ curl -X POST https://api.bookhub.com/api/v2/books \
 
 ### Create book response (201 Created)
 
-The response returns the new book’s details, including its `bookId`, which you can use in future requests. The initial status is `PENDING`. See the [API endpoints](./reference/reference-api-endpoints#error-codes) for error codes.
+The response returns the new book’s details, including its `bookId`, which you can use in future requests. The initial status is `PENDING`. See the [API endpoints](/reference/reference-api-endpoints#error-codes) for error codes.
 
 ```json
 {
   "status": "success",
   "message": "Book created successfully",
   "data": {
-    "bookId": "bk_9x2m4k7p",
+    "bookId": "123e4567-e89b-41d4-a716-426614170300",
     "title": "My New Book",
     "author": "John Doe",
     "description": "A new biography from a well-known author",
@@ -84,7 +85,7 @@ The response returns the new book’s details, including its `bookId`, which you
 
 ## Step 2: Finalize the book (move from `PENDING` → `ACTIVE`)
 
-Change the book’s status from `PENDING` to `ACTIVE` with this request. Use the `bookId` from the previous response (e.g., `bk_9x2m4k7p`). The `updatedDate` will reflect the change.
+Change the book’s status from `PENDING` to `ACTIVE` with this request. Use the `bookId` from the previous response (e.g., `123e4567-e89b-41d4-a716-426614170300`). The `updatedDate` will reflect the change.
 
 ```bash
 curl -X PATCH https://api.bookhub.com/api/v2/books/{bookId}/finalize \
@@ -95,14 +96,14 @@ curl -X PATCH https://api.bookhub.com/api/v2/books/{bookId}/finalize \
 
 ### Finalize book response (200 OK)
 
-The response shows `ACTIVE` status. See the [API endpoints](./reference/reference-api-endpoints#error-codes) for error codes.
+The response shows `ACTIVE` status. See the [API endpoints](/reference/reference-api-endpoints#error-codes) for error codes.
 
 ```json
 {
   "status": "success",
   "message": "Book finalized successfully",
   "data": {
-    "bookId": "bk_9x2m4k7p",
+    "bookId": "123e4567-e89b-41d4-a716-426614170300",
     "title": "My New Book",
     "status": "ACTIVE",
     "updatedDate": "2026-04-18T10:30:00Z"
@@ -116,7 +117,7 @@ Send a `GET` request to `/v2/books/{bookId}` using the `{bookId}` value from the
 
 The response includes `hitCount`, starting at `0`. 
 <Hitcount />
-See the [API endpoints](./reference/reference-api-endpoints#error-codes) for error codes.
+See the [API endpoints](/reference/reference-api-endpoints#error-codes) for error codes.
 
 ```bash
 curl -X GET https://api.bookhub.com/api/v2/books/{bookId} \
@@ -129,7 +130,7 @@ curl -X GET https://api.bookhub.com/api/v2/books/{bookId} \
 {
   "status": "success",
   "data": {
-    "bookId": "bk_9x2m4k7p",
+    "bookId": "123e4567-e89b-41d4-a716-426614170300",
     "title": "My New Book",
     "author": "John Doe",
     "description": "A new biography from a well-known author",
@@ -158,7 +159,7 @@ curl -X GET https://api.bookhub.com/api/v2/books/{bookId} \
 
 Send a `GET` request to `/v2/books` to list all your books. Sort only by creation or update date in descending order.
 
-<Note>Use `page` and `limit` query parameters for pagination. See [Handle pagination](./how-to-guides/how-to-guides-handle-pagination) for more information.</Note>
+<Note>Use `page` and `limit` query parameters for pagination. See [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) for more information.</Note>
 
 ```bash
 curl -X GET https://api.bookhub.com/api/v2/books?sort=createdDate&order=desc \
@@ -167,7 +168,7 @@ curl -X GET https://api.bookhub.com/api/v2/books?sort=createdDate&order=desc \
 
 ### List all books response (200 OK)
 
-The response includes your books and pagination details. See the [API endpoints](./reference/reference-api-endpoints#error-codes) for error codes.
+The response includes your books and pagination details. See the [API endpoints](/reference/reference-api-endpoints#error-codes) for error codes.
 
 ```json
 {
@@ -175,7 +176,7 @@ The response includes your books and pagination details. See the [API endpoints]
   "data": {
     "books": [
       {
-        "bookId": "bk_9x2m4k7p",
+        "bookId": "123e4567-e89b-41d4-a716-426614170300",
         "title": "My New Book",
         "author": "John Doe",
         "status": "ACTIVE",
@@ -183,7 +184,7 @@ The response includes your books and pagination details. See the [API endpoints]
         "createdDate": "2026-03-14T09:15:00Z"
       },
       {
-        "bookId": "bk_3r8n1j5q",
+        "bookId": "123e4567-e89b-41d4-a716-426614174000",
         "title": "The Great Adventure",
         "author": "Jane Smith",
         "status": "ACTIVE",
@@ -191,7 +192,7 @@ The response includes your books and pagination details. See the [API endpoints]
         "createdDate": "2026-03-12T14:22:00Z"
       },
       {
-        "bookId": "bk_7w4p6m2t",
+        "bookId": "123e4567-e89b-41d4-a716-4266141701000",
         "title": "Mysteries of the Deep",
         "author": "Robert Chen",
         "status": "PENDING",
@@ -225,7 +226,7 @@ If any step fails, check the following:
 * The `bookId` in Steps 2–3 matches the value returned in Step 1.
 * The book status is `PENDING` before finalizing — calling finalize on an `ACTIVE` book returns a `400` error.
 
-For a complete list of error codes, see [API endpoints](./reference/reference-api-endpoints#error-codes).
+For a complete list of error codes, see [API endpoints](/reference/reference-api-endpoints#error-codes).
 
 ## Next steps
 
@@ -233,19 +234,19 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](./how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
-* [Migrate away from title sorting](./how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
-* [Handle pagination](./how-to-guides/how-to-guides-handle-pagination) &mdash; Implement pagination to retrieve all books when your catalog exceeds the API's page size limit.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
+* [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
+* [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) &mdash; Implement pagination to retrieve all books when your catalog exceeds the API's page size limit.
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
-* [Release notes](./reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
-* [API endpoints](./reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
+* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
 
 ---
-[← Back to landing page](../index)
+[← Back to landing page](/index)

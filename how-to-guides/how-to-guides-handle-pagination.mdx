@@ -4,7 +4,7 @@ description: 'Retrieve paginated results from the BookHub Publisher API using `p
 keywords: [ 'total items', 'total pages', 'current page', 'items per page', 'pagination parameters' ]
 ---
 
-import Prerequisites from '/snippets/prerequisites.mdx';
+import Prerequisites from '/snippets/prerequisites';
 
 Retrieve paginated results when fetching all books from the BookHub API. 
 
@@ -53,7 +53,7 @@ The response includes a `pagination` object with details on the total number of 
   "data": {
     "books": [
       {
-        "bookId": "abc123",
+        "bookId": "123e4567-e89b-41d4-a716-426614174000",
         "title": "The Great Adventure",
         "author": "Jane Smith",
         "description": "An epic tale of courage and discovery",
@@ -75,7 +75,7 @@ The response includes a `pagination` object with details on the total number of 
         "updatedDate": "2024-12-26T15:45:00Z"
       },
       {
-        "bookId": "def456",
+        "bookId": "123e4567-e89b-41d4-a716-426614174001",
         "title": "Mystery at Midnight",
         "author": "Bob Johnson",
         "description": "A gripping mystery set in a small town",
@@ -138,12 +138,12 @@ Explore related topics:
 
 ### How-to guides
 
-* [Cache book details for faster performance](./how-to-guides-cache-book-details) &mdash; Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.
+* [Cache book details for faster performance](/how-to-guides/how-to-guides-cache-book-details) &mdash; Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.
 * [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
 
 ### Reference
 
-* [PHP example: Fetch all books with pagination](./reference/reference-code-examples#php-example-fetch-all-books-with-pagination) &mdash; Example code to handle pagination in PHP when fetching books from the BookHub API.
-* [Release notes](./reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2, including any updates related to pagination.
+* [PHP example: Fetch all books with pagination](/reference/reference-code-examples#php-example-fetch-all-books-with-pagination) &mdash; Example code to handle pagination in PHP when fetching books from the BookHub API.
+* [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2, including any updates related to pagination.
 
 ---

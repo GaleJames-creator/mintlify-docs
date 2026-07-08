@@ -14,7 +14,7 @@ Any content you find yourself repeating across pages is a good candidate for a s
 
 The simplest pattern: write MDX content in a snippet file and import it as a component.
 
-```mdx snippets/prerequisites.mdx
+```mdx snippets/prerequisites
 Before you begin, make sure you have:
 - Node.js 18 or higher
 - An API key from your [dashboard](https://dashboard.example.com)
@@ -22,12 +22,12 @@ Before you begin, make sure you have:
 
 Import it into any page using a root-relative path:
 
-```mdx your-page.mdx
+```mdx your-page
 ---
 title: Install the SDK
 ---
 
-import Prerequisites from '/snippets/prerequisites.mdx';
+import Prerequisites from '/snippets/prerequisites';
 
 <Prerequisites />
 
@@ -38,22 +38,22 @@ import Prerequisites from '/snippets/prerequisites.mdx';
 You can also use relative imports, which enables CMD+click navigation to the snippet in your editor:
 
 ```mdx
-import Prerequisites from '../snippets/prerequisites.mdx';
+import Prerequisites from '../snippets/prerequisites';
 ```
 
 ## Variable snippets
 
 Export named constants from a snippet file to reuse values like product names, version numbers, or URLs.
 
-```mdx snippets/vars.mdx
+```mdx snippets/vars
 export const sdkVersion = '3.2.0';
 export const baseUrl = 'https://api.example.com/v1';
 ```
 
 Import and use them inline:
 
-```mdx your-page.mdx
-import { sdkVersion, baseUrl } from '/snippets/vars.mdx';
+```mdx your-page
+import { sdkVersion, baseUrl } from '/snippets/vars';
 
 The current SDK version is **{sdkVersion}**.
 
@@ -64,7 +64,7 @@ All requests go to `{baseUrl}`.
 
 For snippets that need to vary based on where they're used, export an arrow function component that accepts props.
 
-```mdx snippets/endpoint-note.mdx
+```mdx snippets/endpoint-note
 export const EndpointNote = ({ method, path }) => (
   <Note>
     This guide covers the <code>{method} {path}</code> endpoint.
@@ -79,8 +79,8 @@ export const EndpointNote = ({ method, path }) => (
 
 Pass props when you render it:
 
-```mdx your-page.mdx
-import { EndpointNote } from '/snippets/endpoint-note.mdx';
+```mdx your-page
+import { EndpointNote } from '/snippets/endpoint-note';
 
 <EndpointNote method="POST" path="/v1/users" />
 ```
@@ -89,8 +89,8 @@ import { EndpointNote } from '/snippets/endpoint-note.mdx';
 
 Snippets can import other snippets, which is useful for composing larger shared sections from smaller pieces.
 
-```mdx snippets/auth-intro.mdx
-import AuthNote from '/snippets/auth-note.mdx';
+```mdx snippets/auth-intro
+import AuthNote from '/snippets/auth-note';
 
 ## Authentication
 

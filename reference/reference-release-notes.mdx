@@ -1,7 +1,7 @@
 ---
 title: 'Release notes'
 description: 'Explore all changes in BookHub Publisher API v2.'
-keywords: [ 'delete book' ]
+keywords: [ 'delete book', 'hitCount', 'analytics', 'breaking changes', 'v2 changes']
 ---
 
 ## Version 2.0 &mdash; January 2, 2026
@@ -32,7 +32,13 @@ See [Data models](/reference/reference-data-models#error-response-schema) for th
 
 The `GET /v2/books` endpoint no longer supports sorting results by title using `sort=title`. Use `sort=createdDate` instead. For migration steps, see [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting).
 
----
+### `Idempotency-Key` header
+
+The POST /v2/books endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
+
+### `409 Conflict` responses
+
+Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.
 
 ## Version 1.0 &mdash; Initial release
 
@@ -48,7 +54,7 @@ Explore related topics:
 
 ### Quickstart
 
-* [Quickstart guide](/quickstart) &mdash; Get up and running with the BookHub Publisher API in minutes.
+* [Quickstart guide](/quickstart/quickstart) &mdash; Get up and running with the BookHub Publisher API in minutes.
 
 ### Conceptual guides
 

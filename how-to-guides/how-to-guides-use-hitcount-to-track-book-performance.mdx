@@ -4,7 +4,7 @@ description: 'Use the `hitCount` field to analyze book performance trends over t
 keywords: ['hit count', 'marketing ROI', 'inventory planning']
 ---
 
-import Prerequisites from '/snippets/prerequisites.mdx';
+import Prerequisites from '/snippets/prerequisites';
 
 The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. This can be used to track the popularity and performance of books over time. 
 
@@ -62,7 +62,7 @@ The response will include the `hitCount` field, which indicates how many times t
 {
   "status": "success",
   "data": {
-    "bookId": "abc123",
+    "bookId": "123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "author": "Jane Smith",
     "description": "An epic tale of courage and discovery",
@@ -90,7 +90,7 @@ The response will include the `hitCount` field, which indicates how many times t
 The print statement outputs:
 
 ```text
-The Great Adventure (abc123): 1247 views
+The Great Adventure (123e4567-e89b-41d4-a716-426614174000): 1247 views
 ```
 
 ## Step 2: Retrieve `hitCount` for all books and identify top performers
@@ -133,9 +133,9 @@ for book in book_performance:
 The output lists books sorted by performance:
 
 ```text
-The Great Adventure (abc123): 1247 views
-Mystery at Midnight (def456): 980 views
-Cooking with Love (ghi789): 450 views
+The Great Adventure (123e4567-e89b-41d4-a716-426614174000): 1247 views
+Mystery at Midnight (123e4567-e89b-41d4-a716-426614174001): 980 views
+Cooking with Love (123e4567-e89b-41d4-a716-426614174002): 450 views
 ```
 
 ## Step 3: Set a performance threshold
@@ -152,9 +152,9 @@ for book in book_performance:
 After running Step 3, the output identifies high performers:
 
 ```text
-The Great Adventure (abc123): 1247 views ⭐ High performer
-Mystery at Midnight (def456): 980 views 
-Cooking with Love (ghi789): 450 views 
+The Great Adventure (123e4567-e89b-41d4-a716-426614174000): 1247 views ⭐ High performer
+Mystery at Midnight (123e4567-e89b-41d4-a716-426614174001): 980 views 
+Cooking with Love (123e4567-e89b-41d4-a716-426614174002): 450 views 
 ```
 
 ## Step 4: Test your implementation
@@ -179,7 +179,7 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](./conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
 
 ### How-to guides
 
@@ -188,7 +188,7 @@ Explore related topics:
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](./reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
-* [Release notes](./reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
+* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 
 ---

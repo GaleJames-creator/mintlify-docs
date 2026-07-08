@@ -17,7 +17,7 @@ The standard `book` object used in all endpoints. ISO 639-1 language code, optio
   "language": "string (ISO 639-1, e.g., en-US)",
   "publisher": "string (max 255 chars)",
   "publishedDate": "date (YYYY-MM-DD)",
-  "isbn": "string (ISBN-10 or ISBN-13)",
+  "isbn": "string (unique ISBN-10 or ISBN-13)",
   "price": "number (minimum 0.01)",
   "status": "enum (PENDING, ACTIVE, INACTIVE)",
   "coverImages": ["array of URLs (1-5 items)"],
@@ -88,7 +88,7 @@ Explore related topics:
 
 ### Reference
 
-* [Release notes](./reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
+* [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 * [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
 * [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 

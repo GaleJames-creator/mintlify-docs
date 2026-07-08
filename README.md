@@ -1,4 +1,4 @@
-# BookHub Publisher API 
+# BookHub Publisher API
 
 **Live site**: [galejames.mintlify.app](https://galejames.mintlify.app)
 
@@ -29,7 +29,7 @@ This project demonstrates:
 * 7 how-to guides covering migration, caching, pagination, rate limits, hitCount analytics, and idempotency
 * 4 conceptual guides
 * 8 reference docs covering API endpoints, data models, authentication, and release notes
-* A Python-based documentation quality evaluator built with the Anthropic API that scores docs against structured criteria and returns JSON feedback
+* Python-based doc-quality-evaluator with RAG enhancement (ChromaDB + Anthropic API) used throughout development to score documentation against structured criteria
 
 ## Technical skills demonstrated
 
@@ -38,6 +38,7 @@ This project demonstrates:
 * GitHub Actions integration
 * Diátaxis framework applied across all doc types
 * Multi-language code examples (Python, JavaScript, Java, PHP)
+* Built RAG pipelines using ChromaDB and ONNX embeddings for standards-grounded document evaluation
 
 ---
 
@@ -49,4 +50,4 @@ This project demonstrates:
 * **Email**: [Available on LinkedIn]
 
 ---
-Last updated:  June 2026
+Last updated:  July 2026

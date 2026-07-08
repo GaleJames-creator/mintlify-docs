@@ -4,7 +4,7 @@ description: 'Update your code so it no longer uses title sorting in BookHub Pub
 keywords: ['migration', 'sort by title', 'sorting changes', 'migration guide', 'create date sorting', 'client side sorting', 'handle sorting errors', 'create date', 'update date', 'current page', 'total pages', 'total items', 'items per page']
 ---
 
-import Prerequisites from '/snippets/prerequisites.mdx';
+import Prerequisites from '/snippets/prerequisites';
 
 The `GET /v2/books` endpoint no longer supports the `sort=title` parameter. Replace it with `sort=createdDate` or implement client-side sorting.
 
@@ -79,7 +79,7 @@ A successful `GET /v2/books` request using `sort=createdDate` returns `200 OK`:
   "data": {
     "books": [
       {
-        "bookId": "abc123",
+        "bookId": "123e4567-e89b-41d4-a716-426614174000",
         "title": "The Great Adventure",
         "author": "Jane Smith",
         "status": "ACTIVE",
@@ -88,7 +88,7 @@ A successful `GET /v2/books` request using `sort=createdDate` returns `200 OK`:
         "updatedDate": "2024-12-26T15:45:00Z"
       },
       {
-        "bookId": "def456",
+        "bookId": "123e4567-e89b-41d4-a716-426614174001",
         "title": "Mystery at Midnight",
         "author": "Bob Johnson",
         "status": "ACTIVE",

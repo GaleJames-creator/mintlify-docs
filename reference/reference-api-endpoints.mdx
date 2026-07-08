@@ -4,13 +4,13 @@ description: 'Explore all available API endpoints and their parameters for BookH
 keywords: ['finalized books', 'pending books', 'inactivated books', 'get book details', 'list books', 'delete book']
 ---
 
-import IsbnNote from '/snippets/isbn-note.mdx';
+import IsbnNote from '/snippets/isbn-note';
 
 This section provides detailed documentation for each BookHub Publisher API endpoint, including request and response examples, field definitions, and usage notes. For an overview of the API and its features, see the [API reference overview](/reference/reference-overview).
 
-<Note>All endpoints return `401` for invalid tokens and `404` when a `bookId` doesn't exist. Endpoint-specific errors are documented inline.</Note>
+<Note>All endpoints return `401` for invalid tokens, `404` when a `bookId` doesn't exist, and `409` when a duplicate resource (a book with the same ISBN already exists) is detected. Endpoint-specific errors are documented inline.</Note>
 
-## Create book
+## Create a book
 
 Creates a new book with `PENDING` status. Books must be finalized before becoming visible to customers.
 
@@ -24,7 +24,8 @@ POST /v2/books
 
 <IsbnNote />
 
-<Note>`Idempotency-Key` is recommended for all `POST` requests to prevent duplicate book creation. If omitted, retried requests may create duplicate books. `X-Request-ID` helps track requests in logs. `X-Publisher-ID` scopes the request to a specific publisher account.</Note>
+<Note>To avoid creating duplicates, the request requires an `Idempotency-Key` header with a unique value. Use `X-Request-ID` to track requests in logs and `X-Publisher-ID` to target a publisher account. See [Add the `Idempotency-Key` header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) for details.
+ If omitted, retried requests may create duplicate books. `X-Request-ID` helps track requests in logs. `X-Publisher-ID` scopes the request to a specific publisher account.</Note>
 
 ```bash
 curl -X POST "https://api.bookhub.com/api/v2/books" \
@@ -61,7 +62,7 @@ curl -X POST "https://api.bookhub.com/api/v2/books" \
   "status": "success",
   "message": "Book created successfully",
   "data": {
-    "bookId": "abc123",
+    "bookId": "123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "author": "Jane Smith",
     "description": "An epic tale of courage and discovery",
@@ -86,6 +87,8 @@ curl -X POST "https://api.bookhub.com/api/v2/books" \
 }
 ```
 
+A `200 OK` response indicates a request with a previously used `Idempotency-Key` (within its 24-hour validity window) returns the existing book instead of creating a duplicate.
+
 ### Field validation
 
 All fields are required unless noted. See the table below for constraints.
@@ -98,7 +101,7 @@ All fields are required unless noted. See the table below for constraints.
 | `language`      | string        | Yes      | ISO 639-1 format (e.g., en-US) |
 | `publisher`     | string        | Yes      | Max 255 characters             |
 | `publishedDate` | string (date) | Yes      | YYYY-MM-DD format              |
-| `isbn`          | string        | Yes      | Valid ISBN-10 or ISBN-13       |
+| `isbn`          | string        | Yes      | Unique ISBN-10 or ISBN-13      |
 | `price`         | number        | Yes      | Minimum 0.01                   |
 | `coverImages`   | array         | Yes      | 1-5 valid URLs                 |
 | `genres`        | array         | Yes      | 1-5 genre strings              |
@@ -147,7 +150,7 @@ curl https://api.bookhub.com/api/v2/books/{bookId}/finalize \
   "status": "success",
   "message": "Book finalized successfully",
   "data": {
-    "bookId": "abc123",
+    "bookId": "123e4567-123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "status": "ACTIVE",
     "updatedDate": "2024-12-27T09:15:00Z"
@@ -210,7 +213,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
 {
   "status": "success",
   "data": {
-    "bookId": "abc123",
+    "bookId": "123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "author": "Jane Smith",
     "description": "An epic tale of courage and discovery",
@@ -333,7 +336,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&
   "data": {
     "books": [
       {
-        "bookId": "abc123",
+        "bookId": "123e4567-e89b-41d4-a716-426614174000",
         "title": "The Great Adventure",
         "author": "Jane Smith",
         "description": "An epic tale of courage and discovery",
@@ -355,7 +358,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books?page=1&limit=20&status=ACTIVE&
         "updatedDate": "2024-12-26T15:45:00Z"
       },
       {
-        "bookId": "def456",
+        "bookId": "123e4567-e89b-41d4-a716-426614174001",
         "title": "Mystery at Midnight",
         "author": "Bob Johnson",
         "description": "A gripping mystery set in a small town",
@@ -475,12 +478,13 @@ For `404` responses, see [Error codes](#error-codes).
 
 Requests that fail field validation include an `errors` array with field-level details. Authentication and rate limit errors return only `status` and `message`. Only `POST` and `PATCH` responses include a `message` field.
 
-| Status code | Meaning                                                |
-| ----------- | ------------------------------------------------------ |
-| `400`       | Bad request — invalid field value or status transition  |
-| `401`       | Unauthorized — missing or invalid JWT |
-| `404`       | Not found — `bookId` does not exist                    |
-| `429`       | Rate limit exceeded — 150 requests per minute          |
+| Status code | Meaning                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| `400`       | Bad request — invalid field value or status transition or missing required Idempotency-Key header. |
+| `401`       | Unauthorized — missing or invalid JWT                                                             |
+| `404`       | Not found — `bookId` does not exist                                                               |
+| `409`       | Conflict — a book with this ISBN already exists.                                                   |
+| `429`       | Rate limit exceeded — 150 requests per minute                                                     |
 
 ## Next steps
 
@@ -498,7 +502,7 @@ Explore related topics:
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
 * [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for the BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.
 * [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
