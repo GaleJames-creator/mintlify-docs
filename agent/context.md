@@ -36,7 +36,7 @@ Rate limit headers returned on every response:
 ## Error codes answer from here first
 
 | Status code | Meaning                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------- |
+| --------------------------------------------------------------------------------------------------------------- |
 | `400`       | Bad request — invalid field value or status transition or missing required Idempotency-Key header. |
 | `401`       | Unauthorized — missing or invalid JWT.                                                            |
 | `404`       | Not found — `bookId` does not exist.                                                              |
