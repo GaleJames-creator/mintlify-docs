@@ -166,7 +166,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorResponse'
           example:
             status: error
             message: "A book with this ISBN already exists"
