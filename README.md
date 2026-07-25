@@ -27,8 +27,8 @@ This project demonstrates:
 
 * Quickstart guide
 * 7 how-to guides covering migration, caching, pagination, rate limits, hitCount analytics, and idempotency
-* 4 conceptual guides
-* 8 reference docs covering API endpoints, data models, authentication, and release notes
+* 2 conceptual guides
+* 9 reference docs covering API endpoints, data models, authentication, and release notes
 * Python-based doc-quality-evaluator with RAG enhancement (ChromaDB + Anthropic API) used throughout development to score documentation against structured criteria
 
 ## Technical skills demonstrated

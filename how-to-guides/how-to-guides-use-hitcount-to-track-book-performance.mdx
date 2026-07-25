@@ -1,14 +1,15 @@
 ---
-title: 'Use hitCount to track book performance'
-description: 'Use the `hitCount` field to analyze book performance trends over time.'
+title: 'Rank books by hitCount to find top performers'
+description: 'Use the `hitCount` field to rank books by buyer interest and flag your top performers.'
 keywords: ['hit count', 'marketing ROI', 'inventory planning']
+docType: how-to
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
-The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. This can be used to track the popularity and performance of books over time. 
+The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. You can use this to track the popularity and performance of books over time. This guide shows you how to retrieve `hitCount`, rank your catalog by it, and flag high performers — then, optionally, measure a marketing campaign's impact.
 
-Only buyer requests increment `hitCount` — publisher requests and cached responses do not. For details on `hitCount` data type, initial value, update behavior, and availability, see [API endpoints](/reference/reference-api-endpoints#hitcount-field-explained).
+Only requests made by buyers increment `hitCount`, providing an accurate reflection of buyer interest in each book. Requests from publishers or cached responses do not affect the count, ensuring that the metric specifically tracks genuine buyer engagement. For details on `hitCount` data type, initial value, update behavior, and availability, see [`hitCount` field explained](/reference/reference-api-endpoints#hitcount-field-explained).
 
 ## Prerequisites
 
@@ -38,6 +39,8 @@ The following examples show how to use the `hitCount` field correctly and what t
 
 To see the `hitCount` for a specific book, make a GET request to the `GET /v2/books/{bookId}` endpoint. 
 
+<Note>The following Python examples use `123e4567-e89b-41d4-a716-426614174000` as the `book_id` or `test_book_id`. </Note>
+
 ```python
 import requests
 
@@ -46,7 +49,7 @@ TOKEN = "YOUR_JWT_TOKEN"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 response = requests.get(
-    f"{BASE_URL}/v2/books/{book_id}",
+    f"{BASE_URL}/v2/books/123e4567-e89b-41d4-a716-426614174000",
     headers=HEADERS
 )
 response.raise_for_status()
@@ -69,7 +72,7 @@ The response will include the `hitCount` field, which indicates how many times t
     "language": "en-US",
     "publisher": "Adventure Books Inc",
     "publishedDate": "2024-03-15",
-    "isbn": "978-3-16-148410-0",
+    "isbn": "978-0-1234-5678-9",
     "price": 24.99,
     "status": "ACTIVE",
     "coverImages": [
@@ -97,26 +100,35 @@ The Great Adventure (123e4567-e89b-41d4-a716-426614174000): 1247 views
 
 The `GET /v2/books` endpoint does not include `hitCount` in its response. To retrieve `hitCount` for all books, fetch each book individually using `GET /v2/books/{bookId}`.
 
-<Important>This approach makes one API request per book. For large catalogs, this may hit rate limits (150 requests per minute). See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) for guidance.</Important>
+<Warning>This approach makes one API request per book, so the number of requests scales linearly with your catalog size. For large catalogs, this may exceed the rate limit (150 requests per minute). See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) for guidance.</Warning>
 
 ```python
+import time
+
+def get_book_with_retry(book_id, max_retries=3):
+    """Fetch a single book, waiting out rate limits if needed."""
+    url = f"{BASE_URL}/v2/books/{book_id}"
+    for attempt in range(max_retries):
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code == 429:
+            reset = int(response.headers.get('X-RateLimit-Reset', 0))
+            wait_seconds = min(60, max(1, reset - int(time.time())))
+            print(f"Rate limit hit — waiting {wait_seconds}s before retrying {book_id}")
+            time.sleep(wait_seconds)
+            continue
+        response.raise_for_status()
+        return response.json()['data']
+    raise Exception(f"Failed to fetch {book_id} after {max_retries} retries")
+
 # Fetch all books to get bookId values
-list_response = requests.get(
-    f"{BASE_URL}/v2/books",
-    headers=HEADERS
-)
+list_response = requests.get(f"{BASE_URL}/v2/books", headers=HEADERS)
 list_response.raise_for_status()
 books = list_response.json()['data']['books']
 
-# Fetch hitCount for each book individually
+# Fetch hitCount for each book individually, respecting rate limits
 book_performance = []
 for book in books:
-    detail_response = requests.get(
-        f"{BASE_URL}/v2/books/{book['bookId']}",
-        headers=HEADERS
-    )
-    detail_response.raise_for_status()
-    detail = detail_response.json()['data']
+    detail = get_book_with_retry(book['bookId'])
     book_performance.append({
         'title': detail['title'],
         'bookId': detail['bookId'],
@@ -163,7 +175,7 @@ Retrieve a known book and confirm `hitCount` is returned and processed correctly
 
 ```python
 # Example test case
-test_book_id = "abc123"  # Replace with a valid bookId
+test_book_id = "123e4567-e89b-41d4-a716-426614174000"  # Replace with a valid bookId
 response = requests.get(
     f"{BASE_URL}/v2/books/{test_book_id}",
     headers=HEADERS
@@ -173,22 +185,35 @@ book = response.json()['data']
 print(f"{book['title']} ({book['bookId']}): {book['hitCount']} views")
 ```
 
+## Optional: Measure marketing campaign effectiveness
+
+Once you can retrieve `hitCount`, you can reuse it to measure a campaign's impact by comparing counts before and after. This is a separate use case from ranking &mdash; use it when you're evaluating a specific promotion.
+  
+```python
+before = requests.get(f"{BASE_URL}/v2/books/123e4567-e89b-41d4-a716-426614174000", headers=HEADERS).json()['data']['hitCount']
+# ... run campaign ...
+after = requests.get(f"{BASE_URL}/v2/books/123e4567-e89b-41d4-a716-426614174000", headers=HEADERS).json()['data']['hitCount']
+increase = after - before
+print(f"Campaign generated {increase} additional views")
+```
+
 ## Next steps
 
 Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn how `hitCount` tracks customer interest in specific titles.
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
+* [Endpoint coverage for the `hitCount` field](/reference/reference-data-models) &mdash; Learn which BookHub Publisher API endpoints include the `hitCount` field in their responses.
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 
 ---

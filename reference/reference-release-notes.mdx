@@ -1,7 +1,8 @@
 ---
 title: 'Release notes'
 description: 'Explore all changes in BookHub Publisher API v2.'
-keywords: [ 'delete book', 'hitCount', 'analytics', 'breaking changes', 'v2 changes']
+keywords: ['delete book', 'hitCount', 'analytics', 'breaking changes', 'v2 changes']
+docType: explanation
 ---
 
 ## Version 2.0 &mdash; January 2, 2026
@@ -10,35 +11,23 @@ keywords: [ 'delete book', 'hitCount', 'analytics', 'breaking changes', 'v2 chan
 
 The `hitCount` field indicates how many times customers retrieve a book’s details via the `GET /v2/books/{bookId}` endpoint. Use `hitCount` to measure interest in specific titles, such as tracking post-campaign views to assess marketing impact, and make data-driven decisions about inventory and pricing.
 
-See [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics), and [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) for more details on using this new field effectively.
+See [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics), and [Rank books by hitCount to find top performers](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) for more details on using this new field.
+
+### Deactivate a book
+
+Publishers can now temporarily remove books from the BookHub marketplace without permanently deleting them. Use the `PATCH /v2/books/{bookId}/deactivate` endpoint to deactivate a book, which changes its status to `INACTIVE`. Deactivated books are excluded from search results and future queries, but can be reactivated later. A successful deactivation returns `200 OK` with the updated book details. For details on using this endpoint, see [Deactivate a book](/reference/reference-api-endpoints#deactivate-a-book).
 
 ### Delete a book
 
 Publishers can now permanently remove `INACTIVE` books from the BookHub marketplace using the `DELETE /v2/books/{bookId}` endpoint. Deleting a book removes it from search results and future queries, reducing catalog clutter. A successful delete returns `204 No Content` with no response body. For details on using this endpoint, see [Delete a book](/reference/reference-api-endpoints#delete-a-book).
 
-### Known issues
+### Finalize a book
 
-The BookHub Publisher API v2 has the following known issues that will be addressed in future versions:
+Publishers can now finalize an `INACTIVE` as well as a `PENDING` book to make it visible to customers on the BookHub marketplace. Finalizing an `INACTIVE` book reactivates a previously deactivated title. Use the `PATCH /v2/books/{bookId}/finalize` endpoint to change a book's status from `PENDING` or `INACTIVE` to `ACTIVE`. A successful finalization returns `200 OK` with the updated book details. For details on using this endpoint, see [Finalize a book](/reference/reference-api-endpoints#finalize-a-book).
 
-**`validation_context` and `provided_value` use snake_case**
+### Breaking changes
 
-The `validation_context` and `provided_value` fields in the error response schema use snake_case rather than the camelCase convention used throughout the rest of the API. This inconsistency will be corrected in a future version. Plan your error handling code accordingly.
-
-See [Data models](/reference/reference-data-models#error-response-schema) for the full error response schema.
-
-## Breaking changes in v2
-
-### Title sorting removed from `GET /books`
-
-The `GET /v2/books` endpoint no longer supports sorting results by title using `sort=title`. Use `sort=createdDate` instead. For migration steps, see [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting).
-
-### `Idempotency-Key` header
-
-The POST /v2/books endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
-
-### `409 Conflict` responses
-
-Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.
+See [Breaking changes](/reference/reference-breaking-changes) for the full list of v2 breaking changes, including the removal of title sorting, the new `Idempotency-Key` requirement, and `409 Conflict` enforcement for duplicate ISBNs.
 
 ## Version 1.0 &mdash; Initial release
 
@@ -58,21 +47,25 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [API versioning strategy](/conceptual-guides/conceptual-guides-api-versioning-strategy) &mdash; Understand the reasoning behind the API versioning strategy.
-* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
-* [Path-based versioning advantages](/conceptual-guides/conceptual-guides-path-based-versioning) &mdash; Learn why path-based versioning was chosen for the BookHub Publisher API and its benefits.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn how `hitCount` tracks customer interest in specific titles.
+* [Pagination](/conceptual-guides/conceptual-guides-pagination.mdx) &mdash; Understand how pagination works in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
+* [Rank books by hitCount to find top performers](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to rank books by buyer interest and flag your top performers.
+
+### API reference
+
+* [API reference overview](/api-reference/api-reference-overview.mdx) &mdash; Get an overview of the BookHub Publisher API, including versioning, authentication, available endpoints, and error handling
 
 ### Reference
 
 * [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
-* [Document information](/reference/reference-document-information) &mdash; View version, last updated, and other key information about the BookHub Publisher API documentation.
-* [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for the BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [Document information](/reference/reference-document-information) &mdash; View version, last updated, changelog, and other key information about the BookHub Publisher API documentation.
+* [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [Breaking changes](/reference/reference-breaking-changes) &mdash; Highlights important information about breaking changes in the BookHub Publisher API.
 
 ---

@@ -2,9 +2,10 @@
 title: 'Monitor rate limits'
 description: 'Track your API usage to avoid exceeding rate limits.'
 keywords: ['throttling', 'quota', '429 error', 'too many requests']
+docType: how-to
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
 Monitor rate limit headers in API responses to avoid exceeding the BookHub Publisher API limit of 150 requests per minute. Exceeding the limit returns a `429 Too Many Requests` response.
 
@@ -18,7 +19,7 @@ Monitor rate limit headers in API responses to avoid exceeding the BookHub Publi
 
 ## Step 1: Track rate limit headers
 
-Every API response includes three rate limit headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. For details on each header, see [API endpoints](/reference/reference-api-endpoints#get-all-books-response-headers).
+Every API response includes three rate limit headers: `X-RateLimit-Limit` (the ceiling), `X-RateLimit-Remaining` (requests left in the window), and `X-RateLimit-Reset` (the Unix timestamp when the window resets). For details on each header, see [Rate limit headers](/reference/reference-rate-limit-headers).
 
 Add a rate limit check to your API calls:
 
@@ -32,7 +33,7 @@ HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 def check_rate_limits(response):
     limit = int(response.headers.get('X-RateLimit-Limit', 150))
-    remaining = int(response.headers.get('X-RateLimit-Remaining', limit))
+    remaining = int(response.headers.get('X-RateLimit-Remaining', 0))
     reset = int(response.headers.get('X-RateLimit-Reset', 0))
     
     print(f"Rate limit: {remaining}/{limit} remaining")
@@ -47,10 +48,12 @@ def check_rate_limits(response):
 
 ## Step 2: Handle 429 responses
 
-When you exceed the rate limit, the API returns `429 Too Many Requests`. Implement exponential backoff to retry automatically:
+When you exceed the rate limit, the API returns `429 Too Many Requests`. Implement retry after the reset window to retry automatically:
 
 ```python
-def make_request_with_backoff(url, max_retries=3):
+import requests
+
+def make_request_with_retry(url, max_retries=3):
     for attempt in range(max_retries):
         response = requests.get(url, headers=HEADERS)
         
@@ -82,8 +85,9 @@ Confirm the response includes `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and 
 
 ```python
 import datetime
-reset_time = datetime.datetime.fromtimestamp(reset)
-print(f"Rate limit resets at: {reset_time}")
+  reset = int(response.headers.get('X-RateLimit-Reset', 0))
+  reset_time = datetime.datetime.fromtimestamp(reset)
+  print(f"Rate limit resets at: {reset_time}")
 ```
 
 ## Response
@@ -93,7 +97,7 @@ A `429 Too Many Requests` response indicates the rate limit has been exceeded:
 ```json
 {
   "status": "error",
-  "message": "Rate limit exceeded"
+  "message": "Rate limit exceeded. Retry after the window resets (see X-RateLimit-Reset header)."
 }
 ```
 

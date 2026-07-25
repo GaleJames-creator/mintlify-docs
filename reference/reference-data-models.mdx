@@ -1,12 +1,25 @@
 ---
 title: "Data models"
-description: 'Explore schema definitions for the BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.'
-keywords: ['base book', 'book with analytics', 'error response']
+description: 'Explore schema definitions for BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.'
+keywords: ['base book', 'book with analytics', 'error response', 'hitCount']
+docType: reference
 ---
+
+## Endpoint coverage for the `hitCount` field
+
+The `hitCount` field records how many times buyers have retrieved a book's details. For its full definition (type, constraints, read-only status), see [Data models](/reference/reference-data-models#bookwithanalytics-schema-v2-only). The following table shows which endpoints include `hitCount` in their responses.
+
+| Endpoint | `hitCount` field in response? |
+| --- | --- |
+| `GET /v2/books/{bookId}` | Yes |
+| `GET /v2/books` | No |
+| `POST /v2/books` | No |
+| `DELETE /v2/books/{bookId}` | No |
+| `PATCH /v2/books/{bookId}/finalize` | No |
 
 ## BaseBook schema
 
-The standard `book` object used in all endpoints. ISO 639-1 language code, optionally with a regional subtag (e.g., `en`, `en-US`).
+This is the standard `book` object returned by the create, get, and list endpoints.
 
 ```json
 {
@@ -28,13 +41,46 @@ The standard `book` object used in all endpoints. ISO 639-1 language code, optio
 }
 ```
 
+### BaseBook example
+
+A populated `BaseBook` object:
+
+```json
+{
+  "bookId": "123e4567-e89b-41d4-a716-426614174000",
+  "title": "The Great Adventure",
+  "author": "Jane Smith",
+  "description": "An epic tale of courage and discovery",
+  "language": "en-US",
+  "publisher": "Adventure Books Inc",
+  "publishedDate": "2024-03-15",
+  "isbn": "978-0-1234-5678-9",
+  "price": 24.99,
+  "status": "ACTIVE",
+  "coverImages": [
+    "https://covers.bookhub.com/great-adventure-front.jpg"
+  ],
+  "genres": [
+    "Fiction",
+    "Adventure"
+  ],
+  "bookFormat": "Hardcover",
+  "createdDate": "2024-12-25T10:30:00Z",
+  "updatedDate": "2024-12-26T15:45:00Z"
+}
+```
+
 ## BookWithAnalytics schema (v2 only)
 
-This schema extends `BaseBook` with the following additional field:
+This schema extends BaseBook with the following additional field:
 
 ```json
   "hitCount": "integer (minimum 0, read-only)"
 ```
+
+### BookWithAnalytics example
+
+For a populated BookWithAnalytics example, see the [Get a specific book](/api-reference/endpoint/getBook.mdx) `200` response, which returns a BookWithAnalytics object, including the `hitCount` field.
 
 ## Pagination schema
 
@@ -53,7 +99,7 @@ The pagination object used in list endpoints (e.g., `GET /v2/books`) to provide 
 
 The error response object returned when an API request fails.
 
-<Note>The `validation_context` and `provided_value` fields use snake_case rather than camelCase. This is a known inconsistency in the v2 API that will be addressed in a future version.</Note>
+<Note>The `validation_context` and `provided_value` fields use snake_case rather than camelCase. This is a known inconsistency in the v2 API that will be addressed in a future version. When parsing error responses, match these two fields by their exact snake_case keys.</Note>
 
 ```json
 {
@@ -80,16 +126,17 @@ Explore related topics:
 
 ### Conceptual guides
 
-* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn about the `hitCount` field in the BookHub Publisher API.
+* [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn how `hitCount` tracks customer interest in specific titles.
+* [Pagination](/conceptual-guides/conceptual-guides-pagination.mdx) &mdash; Understand how pagination works in the BookHub Publisher API.
 
 ### How-to guides
 
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to analyze book performance trends over time.
+* [Rank books by hitCount to find top performers](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to rank books by buyer interest and flag your top performers.
 
 ### Reference
 
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
-* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Provides additional information about the BookHub Publisher API v2 endpoints, including business rules.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
 ---

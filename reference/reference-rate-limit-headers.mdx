@@ -2,9 +2,10 @@
 title: 'Rate limit headers'
 description: 'Understand how rate limit headers in API responses help you monitor and manage your BookHub API usage.'
 keywords: ['rate limits', 'throttling', 'quota', '429 error', 'too many requests']
+docType: reference
 ---
 
-Each BookHub API response includes the following rate limit headers, helping you monitor your current usage and limit status.
+v2 supports 150 requests per minute (a 60-second window). The API returns a `429` response when you exceed the limit. Each BookHub API response includes the following rate limit headers, helping you monitor your current usage and limit status.
 
 | Header Name | Description                                                                         |
 |-------------|-------------------------------------------------------------------------------------| 
@@ -14,6 +15,8 @@ Each BookHub API response includes the following rate limit headers, helping you
 
 ## Example response headers
 
+In the following example, you can send up to 150 requests per minute, leaving 120 remaining in the current window.
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -22,7 +25,22 @@ X-RateLimit-Remaining: 120
 X-RateLimit-Reset: 1700000000
 ```
 
-In this example, you can send up to 150 requests per minute, leaving 120 remaining in the current window. If you exceed the limit, the API returns `429 Too Many Requests`. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) for retry guidance.
+When you exceed the limit, the API returns `429 Too Many Requests`. The headers show no requests remaining and when the window resets:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+X-RateLimit-Limit: 150
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1700000060
+
+{
+  "status": "error",
+  "message": "Rate limit exceeded. Retry after the window resets (see X-RateLimit-Reset header)."
+}
+```
+
+ See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) for retry guidance.
 
 ## Next steps
 

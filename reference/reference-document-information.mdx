@@ -1,36 +1,55 @@
 ---
 title: 'Document information'
-description: 'View version, last updated and other key information about the BookHub Publisher API documentation.'
-keywords: [ 'API base URL', 'version' ]
+description: 'View version, last updated, changelog, and other key information about the BookHub Publisher API documentation.'
+keywords: [ 'API base URL', 'version', 'changelog']
+docType: overview
 ---
 
 | Property                | Value                            |
 |-------------------------|----------------------------------|
 | **Version**             | 2.0                              |
-| **Last Updated**        | January 2, 2026                  |
+| **Last Updated**        | July 25, 2026                    |
 | **API Base URL**        | `https://api.bookhub.com/api`    |
-| **v1 Endpoint**       | `https://api.bookhub.com/api/v1` |
-| **v2 Endpoint**       | `https://api.bookhub.com/api/v2` |
+| **v1 Endpoint**         | `https://api.bookhub.com/api/v1` |
+| **v2 Endpoint**         | `https://api.bookhub.com/api/v2` |
 | **Versioning Method**   | URI Path-Based                   |
-| **Status**              | Preview                          |
+| **Status**              | Current                          |
+
+## Documentation changelog
+
+### July 25, 2026
+
+**API reference (OpenAPI spec)**
+
+* Added response examples to the shared `401 Unauthorized` and `404 Not Found` responses. Previously these had no example of their own, so the docs rendered the unrelated `400` ISBN-validation error body in their place on every endpoint that returned them.
+* Added a second `400` example to **Create a book** covering a malformed (non-UUID) `Idempotency-Key`, alongside the existing invalid-ISBN example.
+* Corrected the **Deactivate a book** and **Finalize a book** `200` response schemas, which showed a phantom nested `data` object the API never returns.
+* Documented the `204 No Content` success response for **Delete a book** in the endpoint description (a 204 has no body, so it renders no example tab).
+* Changed the idempotent-replay (`200`) response message on **Create a book** from "Book created successfully" to "Book already created," so it reads distinctly from the `201` created response. *(This is a wording change to the documented response, not a change in API behavior.)*
+
+**Guides and examples**
+
+* Expanded [Add the Idempotency-Key header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) with an error-handling reference table (400/401/409/429) and error handling in the code sample.
+* Fixed the Python sample in [Code examples](/reference/reference-code-examples): the create request now includes the required `Idempotency-Key` header.
+* Corrected a stale `bookId` example in Step 3 of the [Quickstart](/quickstart/quickstart) to use the standard UUID format.
+* Corrected the v2 status from Preview to Current to match the versioning table and release notes.
 
 ## Next steps
 
 Explore related topics:
 
-### Conceptual guides
-
-* [API versioning strategy](/conceptual-guides/conceptual-guides-api-versioning-strategy) &mdash; Understand the reasoning behind the API versioning strategy.
-* [Path-based versioning advantages](/conceptual-guides/conceptual-guides-path-based-versioning) &mdash; Understand why the BookHub Publisher API uses path-based versioning.
-
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
+
+### API reference
+ 
+* [API reference overview](/api-reference/api-reference-overview.mdx) &mdash; Get an overview of the BookHub Publisher API, including versioning, authentication, available endpoints, and error handling
 
 ### Reference
 
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
-* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Provides additional information about the BookHub Publisher API v2 endpoints, including business rules.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
 ---

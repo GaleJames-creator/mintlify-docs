@@ -2,11 +2,12 @@
 title: 'Cache book details for faster performance'
 description: 'Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.'
 keywords: ['caching', '304 error', 'Not Modified', 'published date', 'updated date', 'coverImages', 'book format', 'hit count']
+docType: integration-guide
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
-The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers you can use to cache book details and reduce unnecessary API calls.
+You can use `GET /v2/books/{bookId}` endpoint to return `ETag` and `Cache-Control` headers you need to cache book details and reduce unnecessary API calls.
 
 ## Prerequisites
 
@@ -14,14 +15,14 @@ The `GET /v2/books/{bookId}` endpoint returns `ETag` and `Cache-Control` headers
 
 * Familiarity with BookHub Publisher API v2.
 * A valid JWT for authentication.
-* * A `bookId` for the book whose details you want to cache. In Python examples, this is assigned to a `book_id` variable following Python naming conventions.
+* A `bookId` for the book whose details you want to cache. In Python examples, the `bookId` is assigned to a `book_id` variable following Python naming conventions. When you create a book (`POST /v2/books`), it create a `bookId` and displays it in the `201 Created` response. If you don't know the `bookId`, you can find it using the (`GET /v2/books`).
 * Access to your codebase that integrates with the BookHub Publisher API v2.
 
 ## Step 1: Make an initial request
 
 Send a `GET` request to retrieve book details. The response includes an `ETag` header with a unique identifier for the current version of the resource, and a `Cache-Control` header indicating how long the response can be cached.
 
-<Note>Replace the `{book_id}` variable in the following Python example with the actual `bookId` returned in the `Create book` response (e.g., `abc123`).</Note>
+<Note>The examples in this document use `123e4567-e89b-41d4-a716-426614174000`) as the `bookId` in the cURL examples and `book_id` in the Python examples.</Note>
 
 ```python
 import requests
@@ -31,7 +32,7 @@ TOKEN = "YOUR_JWT_TOKEN"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 response = requests.get(
-    f"{BASE_URL}/v2/books/{book_id}",
+    f"{BASE_URL}/v2/books/123e4567-e89b-41d4-a716-426614174000",
     headers=HEADERS
 )
 response.raise_for_status()
@@ -48,11 +49,11 @@ Cache-Control: max-age=3600, must-revalidate
 
 ## Step 2: Use `ETag` for conditional requests
 
-For subsequent requests, include the `If-None-Match` header with the `ETag` value from Step 1. If the book details haven't changed, the server returns `304 Not Modified`, and you can use your cached data. If they have changed, the server returns a `200 OK` with updated details.
+For subsequent requests, include the `If-None-Match` header with the `ETag` value from Step 1. If the book details haven't changed, the server returns `304 Not Modified`. `304` means use your stored data. If they have changed, the server returns a `200 OK` with updated details.
 
 ```python
 response = requests.get(
-    f"{BASE_URL}/v2/books/{book_id}",
+    f"{BASE_URL}/v2/books/123e4567-e89b-41d4-a716-426614174000",
     headers={**HEADERS, 'If-None-Match': etag}
 )
 
@@ -70,7 +71,7 @@ Send an initial request and store the `ETag`; then send a second conditional req
 ### Initial request
 
 ```bash
-curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
+curl -X GET "https://api.bookhub.com/api/v2/books/123e4567-e89b-41d4-a716-426614174000" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -v
 ```
@@ -78,7 +79,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
 ### Conditional request
 
 ```bash
-curl -X GET "https://api.bookhub.com/api/v2/books/{bookId}" \
+curl -X GET "https://api.bookhub.com/api/v2/books/123e4567-e89b-41d4-a716-426614174000" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H 'If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"'
 ```
@@ -102,7 +103,7 @@ A `200 OK` response returns updated book details:
     "language": "en-US",
     "publisher": "Adventure Books Inc",
     "publishedDate": "2024-03-15",
-    "isbn": "978-3-16-148410-0",
+    "isbn": "978-0-1234-5678-9",
     "price": 24.99,
     "status": "ACTIVE",
     "coverImages": [
@@ -120,13 +121,13 @@ A `200 OK` response returns updated book details:
 }
 ```
 
-### Error responses
+### Error handling
 
-| Status code | Meaning |
-|-------------|---------|
-| `401` | Unauthorized — missing or invalid JWT |
-| `404` | Not found — `bookId` does not exist |
-| `429` | Rate limit exceeded — 150 requests per minute |
+| Code  | Cause                                                      | Resolution                                                    |
+|-------|------------------------------------------------------------|---------------------------------------------------------------|
+| `401` | Unauthorized (for example, a missing or invalid JWT)       | If you receive a `401`, check your JWT and try again.         |
+| `404` | Not found (for example, `bookId` does not exist)           | If you receive a `404`, check your `bookId` or `book_id` and try again. |
+| `429` | Rate limit exceeded (for example, 150 requests per minute) | Wait until the time in the `X-RateLimit-Reset` header, then retry. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits). |
 
 ## Next steps
 
@@ -135,11 +136,11 @@ Explore related topics:
 ### How-to guides
 
 * [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) &mdash; Manage large result sets when retrieving all books.
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
+* [Rank books by hitCount to find top performers](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to rank books by buyer interest and flag your top performers.
 
 ### Reference
 
-* [API endpoints](/reference/reference-api-endpoints#get-single-book) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
-* [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for the BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API v2.
+* [Get a specific book](/reference/reference-api-endpoints#get-a-specific-book) &mdash; Explore all available API endpoints and their parameters for BookHub Publisher API v2.
+* [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API v2.
 
 ---

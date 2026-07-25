@@ -1,10 +1,11 @@
 ---
 title: 'Using the hitCount field for analytics'
-description: 'Learn about the `hitCount` field in the BookHub Publisher API.'
-keywords: ['book views', 'analytics tracking', 'API usage tracking', 'performance metrics', 'hit count']
+description: 'Learn how `hitCount` tracks customer interest in specific titles.'
+keywords: ['analytics tracking', 'API usage tracking', 'performance metrics', 'hit count']
+docType: explanation
 ---
 
-import Hitcount from '/snippets/hitcount';
+import Hitcount from '/snippets/hitcount.mdx';
 
 <Hitcount />
 
@@ -12,29 +13,29 @@ import Hitcount from '/snippets/hitcount';
 The `hitCount` field is available only in v2. It is not supported in v1.
 </Note>
 
-Use `hitCount` to measure interest in specific titles, such as tracking post-campaign views to assess marketing impact and make data-driven decisions about inventory and pricing. 
+Use `hitCount` to measure interest in specific titles, such as tracking post-campaign API calls to assess marketing impact and make data-driven decisions about inventory and pricing. 
 
 ## How it works
 
-The `hitCount` field is read-only and has an initial value of `0` when a book is created. Each time customers retrieve the book's details via the `GET /v2/books/{bookId}` endpoint, the `hitCount` increments by `1`. This count is cumulative and persists throughout the book's lifetime, allowing you to track its performance over time.
+The `hitCount` field is read-only and initially set to `0` when a book is created. Each time customers retrieve the book's details via the `GET /v2/books/{bookId}` endpoint, the `hitCount` increments by `1`. This count is cumulative and persists throughout the book's lifetime, allowing you to track its performance over time.
 
-The `hitCount` field is updated in real-time and reflects the total number of times a book's details have been accessed via the API. Update latency is minimal, but there may be slight delays during periods of high traffic. Client-side caching using `If-None-Match` and ETag headers returns a `304 Not Modified` response without incrementing `hitCount`, since no new API call reaches the server.
+The `hitCount` field is updated in real time and reflects the total number of times an API call accessed the book's details. Updates typically appear within seconds; this isn't a guaranteed SLA. Client-side caching using `If-None-Match` and ETag headers returns a `304 Not Modified` response without incrementing `hitCount`, since the server returns `304` without invoking the API call's tracking logic.
 
-Repeated requests from the same customer will increment the `hitCount` each time, as it counts API calls rather than unique users. However, requests from publishers and cached responses do not affect the `hitCount`. 
+Each API call from the same customer increases the `hitCount`, since it tracks total API requests rather than unique users. However, API calls made by publishers do not affect the `hitCount`, as these requests are authenticated with your publisher credentials and do not represent buyer-facing traffic.
 
-Endpoint coverage for `hitCount`:
+For error responses and rate limit details, see [Error codes](/reference/reference-api-endpoints#error-codes).
 
-| Endpoint | `hitCount` field in response? |
-| --- | --- |
-| `GET /v2/books/{bookId}` | Yes |
-| `GET /v2/books` | No |
-| `POST /v2/books` | No |
-| `DELETE /v2/books/{bookId}` | No |
-| `PATCH /v2/books/{bookId}/finalize` | No |
+When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, the response includes the `hitCount` field, allowing you to see how many times a customer's API call retrieved the book's details. The following example shows a full response, including the `hitCount`:
 
-For error responses and rate limit details, see [API endpoints](/reference/reference-api-endpoints#error-codes).
+### Get a specific book request example
 
-When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, the response includes the `hitCount` field, allowing you to see how many times that book's details have been viewed via the API. For example:
+```bash
+curl --request GET \
+  --url https://api.bookhub.com/api/v2/books/123e4567-e89b-41d4-a716-426614174000 \
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN'
+```
+
+### Get a specific book response example
 
 ```json
 {
@@ -43,37 +44,29 @@ When you retrieve a book's details using the `GET /v2/books/{bookId}` endpoint, 
     "bookId": "123e4567-e89b-41d4-a716-426614174000",
     "title": "The Great Adventure",
     "author": "Jane Smith",
+    "description": "An epic tale of courage and discovery",
+    "language": "en-US",
+    "publisher": "Adventure Books Inc",
+    "publishedDate": "2024-03-15",
+    "isbn": "978-0-1234-5678-9",
+    "price": 24.99,
+    "status": "ACTIVE",
+    "coverImages": [
+      "https://covers.bookhub.com/great-adventure-front.jpg"
+    ],
+    "genres": [
+      "Fiction",
+      "Adventure"
+    ],
+    "bookFormat": "Hardcover",
+    "createdDate": "2024-12-25T10:30:00Z",
+    "updatedDate": "2024-12-26T15:45:00Z",
     "hitCount": 1247
   }
 }
 ```
 
-## Use cases for `hitCount`
-
-<Note>The following Python examples are for illustrative purposes. Actual implementation may vary based on your programming language and setup.</Note>
-
-* **Trending analysis**: Identify which books are getting the most attention. The following example retrieves all books and sorts them by `hitCount` to find the top 10 most-viewed titles:
-  
-   ```python
-   all_books = fetch_all_books()
-   trending = sorted(all_books, key=lambda x: x['hitCount'], reverse=True)[:10]
-   ```
-
-* **Marketing ROI**: Compare hit counts before and after marketing campaigns. The following example measures the increase in views for a book after running a marketing campaign:
-  
-   ```python
-   before_campaign = get_book('abc123')['hitCount']
-   after_campaign = get_book('abc123')['hitCount']
-   increase = after_campaign - before_campaign
-   print(f"Campaign generated {increase} additional views")
-   ```
-
-* **Inventory planning**: Prioritize books with high view counts for restocking. The following example identifies books with a `hitCount` above a certain threshold and notifies the warehouse to restock:
-  
-   ```python
-   if book['hitCount'] > 1000 and book['status'] == 'ACTIVE':
-       notify_warehouse_to_restock(book['bookId'])
-   ```
+See [Get a specific book](/reference/reference-api-endpoints#get-a-specific-book) for more information about the `GET /v2/books/{bookId}` endpoint.
 
 ## Next steps
 
@@ -81,10 +74,13 @@ Explore related topics:
 
 ### How-to guides
 
-* [Use `hitCount` to track book performance](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Track and interpret the `hitCount` field effectively.
+* [Rank books by hitCount to find top performers](/how-to-guides/how-to-guides-use-hitcount-to-track-book-performance) &mdash; Use the `hitCount` field to rank books by buyer interest and flag your top performers.
 
 ### Reference
 
-* [PHP example: Track high-performing books with `hitCount`](/reference/reference-code-examples#php-example-track-high-performing-books-with-hitcount) &mdash; Example code to use the `hitCount` field in PHP.
+* [Endpoint coverage for the `hitCount` field](/reference/reference-data-models) &mdash; Learn which BookHub Publisher API endpoints include the `hitCount` field in their responses.
+* [Get a specific book](/reference/reference-api-endpoints#get-a-specific-book) &mdash; Learn about the `GET /v2/books/{bookId}` endpoint, including the `hitCount` field.
+* [Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
+* [Error codes](/reference/reference-api-endpoints#error-codes) &mdash; Understand the error codes returned by the BookHub Publisher API.
 
 ---

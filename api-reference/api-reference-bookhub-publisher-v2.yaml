@@ -3,30 +3,7 @@ info:
   title: BookHub Publisher API
   description: |
     BookHub's Publisher API enables programmatic management of book inventory on the BookHub marketplace. 
-    This API uses path-based versioning (v1, v2) and requires authentication via JWTs.
-
-    ## What's new in v2
-
-    ### New features
-
-    - **Hit count tracking**: The `GET /v2/books/{bookId}` endpoint returns a `hitCount` field showing how many times a book has been viewed.
-
-    ### Breaking changes
-
-    - **Removed title sorting**: The `GET /v2/books` endpoint no longer supports sorting by title. Use `createdDate` sorting instead.
-    - **`Idempotency-Key` requirement**: The `POST /v2/books` endpoint requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
-    - **Duplicate ISBN rejection**: Duplicate ISBNs are rejected with 409 Conflict. v1 did not enforce ISBN uniqueness..
-
-    ## Versioning
-
-    The API uses URI path versioning:
-
-    - `v1`: Initial stable release (https://api.bookhub.com/api/v1/books)
-    - `v2`: Latest version with analytics features (https://api.bookhub.com/api/v2/books)
-
-    ## Rate limiting
-
-    All versions: 150 requests/minute
+    This API uses path-based versioning (v2) and requires authentication via JWTs.
   version: '2.0.1'
   contact:
     name: BookHub API Support
@@ -126,13 +103,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    
     UnauthorizedError:
       description: Unauthorized access
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: "error"
+            message: "Authentication failed"
+            errors:
+              - field: "Authorization"
+                error: "INVALID_TOKEN"
+                description: "The JWT is missing, malformed, or expired. Obtain a new token and retry."
     
     NotFoundError:
       description: Resource not found
@@ -140,9 +123,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: "error"
+            message: "Book not found"
+            errors:
+              - field: "bookId"
+                error: "NOT_FOUND"
+                description: "No book exists with bookId 123e4567-e89b-41d4-a716-426614174000"
     
     RateLimitError:
-      description: Rate limit exceeded
+      description: |
+        Rate limit exceeded. Retry after the window resets — see the
+        `X-RateLimit-Reset` header for the Unix timestamp when the current
+        window closes, and `X-RateLimit-Remaining` for requests left in it.
       headers:
         X-RateLimit-Limit:
           schema:
@@ -161,6 +154,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            message: "Rate limit exceeded. Retry after the window resets (see X-RateLimit-Reset header)."
     ConflictError:
       description: A book with this ISBN already exists
       content:
@@ -173,7 +169,7 @@ components:
             errors:
               - field: "isbn"
                 error: "DUPLICATE_VALUE"
-                description: "ISBN 978-0-1234-5678-9 is already registered to bookId 123e4567-e89b-41d4-a716-426614174000"
+                description: "ISBN 978-0-1234-5678-9 is already registered to bookId 123e4567-e89b-41d4-a716-426614174000"            
   schemas:
     BaseBook:
       type: object
@@ -222,7 +218,7 @@ components:
         isbn:
           type: string
           pattern: '^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$'
-          description: ISBN-10 or ISBN-13 identifier. Must be unique across the publisher's catalog. Duplicate ISBNs return   409 Conflict  .
+          description: ISBN-10 or ISBN-13 identifier. Must be unique across the publisher's catalog. Duplicate ISBNs return `409 Conflict`.
           example: "978-0-1234-5678-9"
         price:
           type: number
@@ -367,17 +363,18 @@ paths:
   /books:
     description: Endpoints for creating and managing books in the BookHub catalog.
     post:
+      operationId: createBook
+      x-hidden: true    
       summary: Create a new book
       description: |
-        Creates a new book with PENDING status. The book will not be visible to customers
+        Creates a new book with `PENDING` status. The book will not be visible to customers
         until it is finalized using the finalize endpoint.
 
         ## Workflow
 
-        1. Create book with PENDING status
+        1. Create book with `PENDING` status
         2. Review and verify book details
-        3. Finalize book to make it ACTIVE
-      operationId: createBook
+        3. Finalize book to make it `ACTIVE`
       tags:
         - Books
       parameters:
@@ -422,11 +419,31 @@ paths:
                     enum: [success]
                   message:
                     type: string
-                    example: "Book created successfully"
+                    example: "Book already created"
                   data:
                     $ref: '#/components/schemas/BaseBook'
+              example:
+                status: "success"
+                message: "Book already created"
+                data:
+                  bookId: "123e4567-e89b-41d4-a716-426614174000"
+                  title: "The Great Adventure"
+                  author: "Jane Smith"
+                  description: "An epic tale of courage and discovery"
+                  language: "en-US"
+                  publisher: "Adventure Books Inc"
+                  publishedDate: "2024-03-15"
+                  isbn: "978-0-1234-5678-9"
+                  price: 24.99
+                  status: "PENDING"
+                  coverImages:
+                    - "https://covers.bookhub.com/great-adventure-front.jpg"
+                  genres: ["Fiction", "Adventure"]
+                  bookFormat: "Hardcover"
+                  createdDate: "2024-12-25T10:30:00Z"
+                  updatedDate: "2024-12-25T10:30:00Z"
         '201':
-          description: Book created successfully
+          description: Book created successfully. Returned when the Idempotency-Key has not been used before; replaying a used key returns 200 with the existing book.
           headers:
             Location:
               schema:
@@ -446,8 +463,61 @@ paths:
                     example: "Book created successfully"
                   data:
                     $ref: '#/components/schemas/BaseBook'
+              example:
+                status: "success"
+                message: "Book created successfully"
+                data:
+                  bookId: "123e4567-e89b-41d4-a716-426614174000"
+                  title: "The Great Adventure"
+                  author: "Jane Smith"
+                  description: "An epic tale of courage and discovery"
+                  language: "en-US"
+                  publisher: "Adventure Books Inc"
+                  publishedDate: "2024-03-15"
+                  isbn: "978-0-1234-5678-9"
+                  price: 24.99
+                  status: "PENDING"
+                  coverImages:
+                    - "https://covers.bookhub.com/great-adventure-front.jpg"
+                  genres: ["Fiction", "Adventure"]
+                  bookFormat: "Hardcover"
+                  createdDate: "2024-12-25T10:30:00Z"
+                  updatedDate: "2024-12-25T10:30:00Z"
         '400':
-          $ref: '#/components/responses/ErrorResponse'
+          description: Bad request (e.g., validation failure such as an invalid ISBN format or a malformed Idempotency-Key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidIsbn:
+                  summary: ISBN format is invalid
+                  value:
+                    status: "error"
+                    message: "Validation failed"
+                    errors:
+                      - field: "isbn"
+                        error: "INVALID_FORMAT"
+                        description: "ISBN must match the pattern for ISBN-10 or ISBN-13"
+                        validation_context:
+                          rule: "pattern_match"
+                          constraint:
+                            pattern: "^[0-9]{13}$"
+                          provided_value: "invalid-isbn"
+                invalidIdempotencyKey:
+                  summary: Idempotency-Key is not a valid UUID
+                  value:
+                    status: "error"
+                    message: "Validation failed"
+                    errors:
+                      - field: "Idempotency-Key"
+                        error: "INVALID_FORMAT"
+                        description: "Idempotency-Key must be a valid UUID"
+                        validation_context:
+                          rule: "format"
+                          constraint:
+                            format: "uuid"
+                          provided_value: "not-a-uuid"
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '409':
@@ -456,9 +526,11 @@ paths:
           $ref: '#/components/responses/RateLimitError'
 
     get:
+      operationId: getAllBooks
+      x-hidden: true
       summary: Get all books
       description: |
-        Retrieves a paginated list of books for the authenticated publisher.
+        Retrieves a paginated list of books for the authenticated publisher. If `page` exceeds `totalPages`, the API returns `200 OK` with an empty `books` array.
         
         ## v2 changes
 
@@ -471,7 +543,6 @@ paths:
 
         - Replace with `sort=createdDate` (recommended)
         - Implement client-side sorting if title ordering is required
-      operationId: getAllBooks
       tags:
         - Books
       parameters:
@@ -518,14 +589,72 @@ paths:
                       title: "The Great Adventure"
                       author: "Jane Smith"
                       description: "A thrilling adventure story set in the mountains of Peru."
+                      language: "en-US"
+                      publisher: "Adventure Books Inc"
+                      publishedDate: "2024-01-15"
+                      isbn: "978-0-1234-5678-9"
+                      price: 24.99          
+                      genres: ["Fiction", "Mystery", "Thriller"]         
+                      bookFormat: "Hardcover"  
                       status: "ACTIVE"
-                      price: 24.99
                       createdDate: "2024-12-25T10:30:00Z"
                   pagination:
                     currentPage: 1
                     totalPages: 5
                     totalItems: 87
                     itemsPerPage: 20
+        '400':
+          description: Bad request (e.g., limit exceeding the maximum of 100 or page below 1)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                limitOutOfRange:
+                  summary: limit exceeds maximum
+                  description: "Occurs when the limit query parameter exceeds 100."
+                  value:
+                    status: "error"
+                    message: "Validation failed"
+                    errors:
+                      - field: "limit"
+                        error: "OUT_OF_RANGE"
+                        description: "limit must be between 1 and 100"
+                        validation_context:
+                          rule: "max_value"
+                          constraint:
+                            maximum: 100
+                          provided_value: "150"
+                pageBelowMinimum:
+                  summary: page is less than 1
+                  description: "Occurs when the page query parameter is less than 1."
+                  value:
+                    status: "error"
+                    message: "Validation failed"
+                    errors:
+                      - field: "page"
+                        error: "OUT_OF_RANGE"
+                        description: "page must be 1 or greater"
+                        validation_context:
+                          rule: "min_value"
+                          constraint:
+                            minimum: 1
+                          provided_value: "0"
+                invalidSort:
+                  summary: sort parameter is not a supported value
+                  description: "Occurs when the sort query parameter is not createdDate (for example, the v1 sort=title, removed in v2)."
+                  value:
+                    status: "error"
+                    message: "Validation failed"
+                    errors:
+                      - field: "sort"
+                        error: "INVALID_VALUE"
+                        description: "sort must be createdDate. Title sorting was removed in v2."
+                        validation_context:
+                          rule: "allowed_values"
+                          constraint:
+                            allowed: ["createdDate"]
+                          provided_value: "title"
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '429':
@@ -534,6 +663,8 @@ paths:
   /books/{bookId}:
     description: Endpoint for retrieving or managing a specific book.
     get:
+      operationId: getBook
+      x-hidden: true    
       summary: Get a specific book
       description: |
         Retrieves detailed information about a specific book.
@@ -542,7 +673,6 @@ paths:
 
         - **(new)**: Returns `hitCount` field.
         - The `hitCount` increments each time a buyer retrieves the book via `GET /v2/books/{bookId}`. Requests authenticated with publisher credentials do not increment the count.
-      operationId: getBook
       tags:
         - Books
       parameters:
@@ -606,16 +736,19 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimitError'
     delete:
+      operationId: deleteBook
+      x-hidden: true
       summary: Delete a book
       description: |
         Permanently deletes a book from the BookHub marketplace.
+
+        Returns `204 No Content` on success, with an empty response body.
 
         ## Important notes
 
         - Only `INACTIVE` books can be deleted
         - This operation cannot be undone
         - Active books must be deactivated before deletion
-      operationId: deleteBook
       tags:
         - Books
       parameters:
@@ -649,24 +782,108 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '429':
           $ref: '#/components/responses/RateLimitError'
-
+  /books/{bookId}/deactivate:
+    patch:
+      summary: Deactivate a book
+      description: |
+        Changes a book's status from `ACTIVE` to `INACTIVE`, removing it from
+        customer visibility without deleting it. Deactivation is a required
+        precondition for deleting a book.
+      operationId: deactivateBook
+      x-hidden: true    
+      tags:
+        - Books
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: Unique identifier of the book to deactivate
+          schema:
+            type: string
+          example: "123e4567-e89b-41d4-a716-426614174000"
+      requestBody:
+        required: false
+        description: Optional deactivation metadata
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  maxLength: 1000
+                  description: Internal notes about the deactivation
+                  example: "Removed due to publisher request"
+            example:
+              notes: "Removed due to publisher request"
+      responses:
+        '200':
+          description: |
+            Book successfully deactivated. If the book is already `INACTIVE`,
+            this is a no-op and returns the current state.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success]
+                    example: success
+                  message:
+                    type: string
+                    example: "Book deactivated successfully"
+                  data:
+                    type: object
+                    properties:
+                      bookId:
+                        type: string
+                        example: "123e4567-e89b-41d4-a716-426614174000"
+                      title:
+                        type: string
+                        example: "The Great Adventure"
+                      status:
+                        type: string
+                        enum: [INACTIVE]
+                        example: INACTIVE
+                      updatedDate:
+                        type: string
+                        format: date-time
+                        example: "2024-12-26T15:45:00Z"
+        '400':
+          description: Bad request (e.g., notes field exceeds 1000 characters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "Validation failed"
+                errors:
+                  - field: "notes"
+                    error: "MAX_LENGTH_EXCEEDED"
+                    description: "notes must not exceed 1000 characters"
+                    validation_context:
+                      rule: "max_length"
+                      constraint:
+                        maxLength: 1000
+                      provided_value: "<1247 characters>"        
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
   /books/{bookId}/finalize:
-    description: Endpoint for making a book visible to customers.
     patch:
       summary: Finalize a book
       description: |
-        Changes a book's status from PENDING to ACTIVE, making it visible to customers.
-
-        ## Important notes
-
-        - Only `PENDING` books can be finalized
-        - This operation is idempotent
-        - The book becomes immediately available to customers
-
-        ## Request body
-        
-        The request body is optional. If omitted, the book is finalized without notes.
+        Changes a book's status to `ACTIVE`, making it visible to customers.
+        Accepts books in `PENDING` status (initial publication) or `INACTIVE`
+        status (reactivating a previously deactivated book). If the book is
+        already `ACTIVE`, this is a no-op and returns the current state.
       operationId: finalizeBook
+      x-hidden: true
       tags:
         - Books
       parameters:
@@ -688,13 +905,13 @@ paths:
                 notes:
                   type: string
                   maxLength: 1000
-                  description: Internal notes about the finalization
+                  description: Internal notes about the finalization or reactivation
                   example: "Reviewed and approved by editorial team"
-            example:
-              notes: "Reviewed and approved by editorial team"
       responses:
         '200':
-          description: Book successfully finalized
+          description: |
+            Book successfully finalized or reactivated. If the book was
+            already `ACTIVE`, this is a no-op and returns the current state.
           content:
             application/json:
               schema:
@@ -711,39 +928,40 @@ paths:
                     properties:
                       bookId:
                         type: string
+                        example: "123e4567-e89b-41d4-a716-426614174000"
                       title:
                         type: string
+                        example: "The Great Adventure"
                       status:
                         type: string
                         enum: [ACTIVE]
+                        example: ACTIVE
                       updatedDate:
                         type: string
                         format: date-time
-              example:
-                status: "success"
-                message: "Book finalized successfully"
-                data:
-                  bookId: "123e4567-e89b-41d4-a716-426614174000"
-                  title: "The Great Adventure"
-                  status: "ACTIVE"
-                  updatedDate: "2024-12-27T09:15:00Z"
+                        example: "2024-12-26T15:45:00Z"
         '400':
-          description: Bad request (e.g., book is not in PENDING status)
+          description: Bad request (e.g., notes field exceeds 1000 characters)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 status: "error"
-                message: "Cannot finalize book"
+                message: "Validation failed"
                 errors:
-                  - field: "status"
-                    error: "INVALID_STATUS_TRANSITION"
-                    description: "Book must be in PENDING status to finalize. Current status: ACTIVE"
-        '404':
-          $ref: '#/components/responses/NotFoundError'
+                  - field: "notes"
+                    error: "MAX_LENGTH_EXCEEDED"
+                    description: "notes must not exceed 1000 characters"
+                    validation_context:
+                      rule: "max_length"
+                      constraint:
+                        maxLength: 1000
+                      provided_value: "<1247 characters>"                        
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '429':
           $ref: '#/components/responses/RateLimitError'
           

@@ -8,7 +8,6 @@
     "dark": "#1D4ED8"
   },
   "favicon": "/favicon.svg",
-  "openapi": "api-reference/api-reference-bookhub-publisher-v2.yaml",
   "navigation": {
     "tabs": [
       {
@@ -29,16 +28,13 @@
               "how-to-guides/how-to-guides-cache-book-details",
               "how-to-guides/how-to-guides-handle-pagination",
               "how-to-guides/how-to-guides-monitor-rate-limits",
-              "how-to-guides/how-to-guides-use-hitcount-to-track-book-performance",
-              "how-to-guides/how-to-guides-add-the-idempotency-key-header"
-            ]
+              "how-to-guides/how-to-guides-add-the-idempotency-key-header",
+              "how-to-guides/how-to-guides-use-hitcount-to-track-book-performance"            ]
           },
           {
             "group": "Conceptual guides",
             "pages": [
               "conceptual-guides/conceptual-guides-overview",
-              "conceptual-guides/conceptual-guides-api-versioning-strategy",
-              "conceptual-guides/conceptual-guides-path-based-versioning",
               "conceptual-guides/conceptual-guides-hitcount-analytics",
               "conceptual-guides/conceptual-guides-pagination"
             ]
@@ -70,11 +66,13 @@
           },
           {
             "group": "Endpoints",
+            "openapi": "api-reference/api-reference-bookhub-publisher-v2.yaml",
             "pages": [
               "api-reference/endpoint/createBook",
               "api-reference/endpoint/getAllBooks",
               "api-reference/endpoint/getBook",
               "api-reference/endpoint/deleteBook",
+              "api-reference/endpoint/deactivateBook",
               "api-reference/endpoint/finalizeBook"
             ]
           }

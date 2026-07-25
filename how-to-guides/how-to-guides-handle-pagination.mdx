@@ -2,11 +2,12 @@
 title: 'Handle pagination'
 description: 'Retrieve paginated results from the BookHub Publisher API using `page` and `limit` parameters.'
 keywords: [ 'total items', 'total pages', 'current page', 'items per page', 'pagination parameters' ]
+docType: integration-guide
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
-Retrieve paginated results when fetching all books from the BookHub API. 
+Use pagination to limit the number of results per page for a `GET /v2/books` request with a large book dataset.
 
 ## Prerequisites
 
@@ -18,9 +19,9 @@ Retrieve paginated results when fetching all books from the BookHub API.
 
 ## Step 1: Send a paginated request
 
-For an overview of how pagination works in the BookHub API, see [Pagination](/conceptual-guides/conceptual-guides-pagination).
+To implement pagination with the BookHub Publisher API, construct a request that fetches results in pages using the `page` and `limit` parameters.
 
-The examples use `page` and `limit` only. The endpoint also accepts `status`, `sort`, and `order` parameters — see [API endpoints](/reference/reference-api-endpoints#get-all-books) for details.
+The following examples use `page` and `limit` only. The endpoint also accepts `status`, `sort`, and `order` parameters — see [Get all books](/reference/reference-api-endpoints#get-all-books) for details.
 
 ```python
 def fetch_all_books(base_url, token):
@@ -43,9 +44,9 @@ def fetch_all_books(base_url, token):
     return all_books
 ```
 
-<Note>The loop exits when `page` reaches `totalPages`, including when the API returns fewer items than `limit`. If the response does not include a `pagination` object, the loop exits immediately.</Note>
+<Note>The loop exits when `page` reaches `totalPages`. If the API returns fewer items than `limit`, stop after processing that page. If the response does not include a `pagination` object, exit immediately.</Note>
 
-The response includes a `pagination` object with details on the total number of items, the total number of pages, and the current page.
+The response includes a `pagination` object with the total number of items, total pages, and current page.
 
 ```json
 {
@@ -60,7 +61,7 @@ The response includes a `pagination` object with details on the total number of 
         "language": "en-US",
         "publisher": "Adventure Books Inc",
         "publishedDate": "2024-03-15",
-        "isbn": "978-3-16-148410-0",
+        "isbn": "978-0-1234-5678-9",
         "price": 24.99,
         "status": "ACTIVE",
         "coverImages": [
@@ -107,19 +108,19 @@ The response includes a `pagination` object with details on the total number of 
 }
 ```
 
-### Error responses
+### Error handling
 
 The `page` parameter defaults to 1. The `limit` parameter accepts values between 1 and 100 and defaults to 20.
 
-| Status code | Meaning |
-|-------------|---------|
-| `400` | Bad request — invalid `page` or `limit` parameter |
-| `401` | Unauthorized — missing or invalid JWT token |
-| `429` | Rate limit exceeded — 150 requests per minute |
+| Code  | Cause                                                          | Resolution                                                 |
+|-------|----------------------------------------------------------------|------------------------------------------------------------|
+| `400` | Bad request (for example, invalid `page` or `limit` parameter) | Provide a valid `page` or `limit` parameter and try again. |
+| `401` | Unauthorized (for example, a missing or invalid JWT)           | Provide a valid JWT and try again.                         |
+| `429` | Rate limit exceeded (for example, 150 requests per minute) | Wait until the time in the `X-RateLimit-Reset` header, then retry with the same `Idempotency-Key`. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits). |
 
 ## Step 2: Test your implementation
 
-Call the `fetch_all_books` function with your API base URL and JWT. Verify that it retrieves all books across multiple pages by checking the length of the returned list against the `totalItems` field in the pagination object.
+Call the `fetch_all_books` function with your API base URL and JWT. Verify that it retrieves all books across multiple pages by checking the length of the returned list against `totalItems`.
 
 ```python
 BASE_URL = "https://api.bookhub.com/api"
@@ -132,10 +133,6 @@ print(f"Total books fetched: {len(books)}")
 
 Explore related topics:
 
-### Conceptual guides
-
-* [Pagination](/conceptual-guides/conceptual-guides-pagination) &mdash; Learn about the concept of pagination and how it works in the BookHub API.
-
 ### How-to guides
 
 * [Cache book details for faster performance](/how-to-guides/how-to-guides-cache-book-details) &mdash; Use ETag and Cache-Control headers to cache book details and reduce unnecessary API calls.
@@ -143,7 +140,6 @@ Explore related topics:
 
 ### Reference
 
-* [PHP example: Fetch all books with pagination](/reference/reference-code-examples#php-example-fetch-all-books-with-pagination) &mdash; Example code to handle pagination in PHP when fetching books from the BookHub API.
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2, including any updates related to pagination.
 
 ---

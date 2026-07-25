@@ -2,14 +2,14 @@
 title: Pagination
 description: Understand how pagination works in the BookHub Publisher API.
 keywords: ['paginate', 'total items', 'total pages', 'items per page']
+docType: explanation
 ---
 
-The BookHub API limits results per request, so retrieving a full dataset requires multiple requests.
+The BookHub API limits the number of results per request, so retrieving a full dataset requires multiple requests.
 
-When you request a list (e.g., `GET /v2/books`), the API returns the total number of items, the total number of pages, and the current page. See [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) for implementation details.
+When you request a list (e.g., `GET /v2/books`), the API returns the total number of items, the total number of pages, and the current page. See [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) to learn how to retrieve paginated results from the BookHub Publisher API using `page` and `limit` parameters.
 
-The server automatically calculates `totalPages` from `totalItems` and `itemsPerPage`; you do not need to compute it. For example, if there are 250 books and the page size is 100, `totalPages` will be 3. The first two pages will return 100 items each, and the last page will return the remaining 50 items. If `page` exceeds `totalPages`, the API returns `200 OK` with an empty `books` array.
-
+The server automatically calculates `totalPages` from `totalItems` and `itemsPerPage`; you do not need to compute it. For example, if there are 250 books and the page size is 100, `totalPages` will be 3. The first two pages will return 100 items each, and the last page will return the remaining 50 items. If the `page` exceeds `totalPages`, the API returns `200 OK` with an empty `books` array.
 
 ```json
 {
@@ -19,7 +19,21 @@ The server automatically calculates `totalPages` from `totalItems` and `itemsPer
       {
         "bookId": "123e4567-e89b-41d4-a716-426614174000",
         "title": "The Great Adventure",
-        "author": "Jane Smith"
+        "author": "Jane Smith",
+        "description": "A thrilling adventure story set in the mountains of Peru.",
+        "language": "en-US",
+        "publisher": "Adventure Books Inc",
+        "publishedDate": "2024-01-15",
+        "isbn": "978-0-1234-5678-9",
+        "price": 24.99,
+        "genres": [
+          "Fiction",
+          "Mystery",
+          "Thriller"
+        ],
+        "bookFormat": "Hardcover",
+        "status": "ACTIVE",
+        "createdDate": "2024-12-25T10:30:00Z"
       }
     ],
     "pagination": {
@@ -32,17 +46,17 @@ The server automatically calculates `totalPages` from `totalItems` and `itemsPer
 }
 ```
 
-The `GET /v2/books` endpoint also accepts `status`, `sort`, and `order` parameters. See [API endpoints](/reference/reference-api-endpoints#get-all-books) for details.
+## Query parameters
 
-## Pagination parameters
+The query parameters filter and sort the data to ensure you retrieve the data you need in the right sequence. 
 
-Pass `page` and `limit` as query parameters to control which page you receive:
+The `page`, `limit`, `status`, `sort`, and `order` query parameters control pagination in the response. The `status` query parameter filters the response data by a book's status (`PENDING`, `ACTIVE`, `INACTIVE`). The `sort` query parameter sorts response data by `createdDate`, and the `order` query parameter sorts the data by `asc` (ascending) or `desc` (descending).
 
 ```http
-GET /v2/books?page=2&limit=100
+GET /v2/books?page=2&limit=100&status=INACTIVE&sort=createdDate&order=asc
 ```
 
-The `page` parameter defaults to `1`, and `limit` defaults to `20` with a maximum of `100`. See [API endpoints](/reference/reference-api-endpoints#get-all-books) for the full parameter reference.
+See [Get all books](/api-reference/endpoint/getAllBooks) for the full query parameter reference, including defaults.
 
 ## Next steps
 
@@ -54,6 +68,7 @@ Explore related topics:
 
 ### Reference
 
+* [Get all books](/api-reference/endpoint/getAllBooks) &mdash; Retrieve a paginated list of books for the authenticated publisher.
 * [API endpoints](/reference/reference-api-endpoints) &mdash; Detailed documentation for all API endpoints, parameters, and response formats.
 
 ---

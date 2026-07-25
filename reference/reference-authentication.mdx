@@ -2,6 +2,7 @@
 title: 'Authentication'
 description: 'Learn how BookHub Publisher API uses JWT authentication, including header format and token requirements.'
 keywords: ['login', 'auth', 'credentials', 'access token', 'bearer']
+docType: reference
 ---
 
 Authenticate with the BookHub Publisher API using JWT bearer tokens.
@@ -12,7 +13,7 @@ All API requests require authentication using a JWT bearer token.
 
 ### Obtaining a token
 
-Email api-support@bookhub.com with your publisher account information.
+Tokens are issued manually by BookHub support. To request one, email api-support@bookhub.com with your publisher name, account ID, and contact email.
 
 ### Using the token
 
@@ -30,11 +31,11 @@ curl -X GET https://api.bookhub.com/api/v2/books \
 ### Token expiration
 
 * Tokens expire in 24 hours and require renewal.
-* A `401 Unauthorized` response indicates an expired token.
+* A 401 Unauthorized response indicates the token is missing, malformed, or expired.
 
 ### Token renewal
 
-Tokens expire after 24 hours. To renew, email api-support@bookhub.com with your publisher account information to request a new token before your current one expires.
+Tokens expire after 24 hours. To renew, email api-support@bookhub.com with your publisher name, account ID, and contact email.
 
 ### Token security
 
@@ -51,8 +52,8 @@ Explore related topics:
 
 ### Reference
 
-* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Provides additional information about the BookHub Publisher API v2 endpoints, including business rules.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 
 ---

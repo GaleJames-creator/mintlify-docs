@@ -2,11 +2,12 @@
 title: 'Add the Idempotency-Key header'
 description: 'Add the `Idempotency-Key` header to prevent duplicates when creating books.'
 keywords: ['idempotency', 'duplicate prevention', 'create book', 'idempotent requests', 'published date', 'cover images', 'book format', 'duplicate key', 'Idempotency-Key expiration', 'Idempotency-Key uniqueness', 'idempotency testing', 'idempotency behavior', 'idempotency response codes', 'idempotency key uniqueness', 'idempotency key expiration']
+docType: integration-guide
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
-This guide explains how to add the `Idempotency-Key` header to prevent duplicate book creation in the BookHub Publisher API v2. Including a unique `Idempotency-Key` is required across requests to prevent multiple submissions from creating the same book.
+This guide explains how to add the `Idempotency-Key` header to prevent duplicate book creation in the BookHub Publisher API v2. Including a unique `Idempotency-Key` is required when creating a book with `POST /v2/books`. For example, if a network error causes you to resend the same request, the idempotency header ensures only one book is created. 
 
 ## Prerequisites
 
@@ -18,9 +19,11 @@ This guide explains how to add the `Idempotency-Key` header to prevent duplicate
 
 ## Step 1: Add the `Idempotency-Key` header
 
-When you create a new book using the `POST /v2/books` endpoint, you must include a unique `Idempotency-Key` header in your create request. 
+When you create a new book using the `POST /v2/books` endpoint, you must include a unique `Idempotency-Key` header in your create request. The `Idempotency-Key` must be a UUID. Generate a new one for each distinct book you create. Store the key with the pending request so you can reuse it if the request needs to be retried after a restart or crash.
 
-<Note> The `Idempotency-Key` prevents duplicates from retried requests, not from repeated submissions. If you generate a new key and send the same book data, the API treats it as a new create request and returns `409 Conflict` because the ISBN already exists.</Note>
+<Note>
+Reusing the same `Idempotency-Key` returns the original result instead of creating a second book — this is what makes retries safe. Sending the same book data with a *new* key is treated as a new create request, and returns `409 Conflict` because the ISBN already exists.
+</Note>
 
 ```python
 import requests
@@ -46,23 +49,37 @@ book_data = {
     "bookFormat": "Hardcover"
 }
 
-response = requests.post(
-    f"{BASE_URL}/v2/books",
-    headers={**HEADERS, 'Idempotency-Key': idempotency_key},
-    json=book_data
-)
-response.raise_for_status()
-book = response.json()['data']
-print(f"Created: {book['bookId']} — Status: {book['status']}")
+try:
+    response = requests.post(
+        f"{BASE_URL}/v2/books",
+        headers={**HEADERS, 'Idempotency-Key': idempotency_key},
+        json=book_data
+    )
+    response.raise_for_status()
+    book = response.json()['data']
+    if response.status_code == 201:
+        print(f"Created: {book['bookId']} — Status: {book['status']}")
+    else:  # 200 — idempotent replay, book already existed
+        print(f"Already created: {book['bookId']}")
+except requests.HTTPError as e:
+    status = e.response.status_code
+    if status == 409:
+        # Same ISBN, different key — the book already exists
+        print("Book already exists. Reuse the original Idempotency-Key to retry.")
+    elif status == 429:
+        reset = e.response.headers.get('X-RateLimit-Reset')
+        print(f"Rate limited. Retry after {reset} with the same Idempotency-Key.")
+    else:
+        print(f"Request failed ({status}): {e.response.json().get('message')}")
 ```
 
 ## Response
 
 A successful request returns a `201 Created` response with the details of the newly created book. 
 
-<Note> The Idempotency-Key must be unique for each create request. As the `Idempotency-Key` is valid only for a short period, 24 hours, the key will expire after that time. If you need to create another book or the key has expired, generate a new `Idempotency-Key`.</Note>
+<Note>Use a unique `Idempotency-Key` for each distinct book you create — but reuse the same key when retrying a request that may not have completed. The API retains each key for 24 hours. After a key expires, retrying with it is treated as a new create request — which returns `409 Conflict` if the book was already created. Generate a new key only when creating a different book.</Note>
 
-For error responses including `400`, `401`, `409`, and `429`, see [API endpoints](/reference/reference-api-endpoints#error-codes).
+For error responses including `400`, `401`, `409`, and `429`, see [Error codes](/reference/reference-api-endpoints#error-codes).
 
 ### 201 Created (new book)
 
@@ -99,7 +116,7 @@ This is expected behavior &mdash; not an error. The API recognizes the duplicate
 ```json
 {
   "status": "success",
-  "message": "Book created successfully",
+  "message": "Book already created",
   "data": {
     "bookId": "123e4567-e89b-41d4-a716-426614167005",
     "title": "The Design of Everyday Things",
@@ -138,6 +155,17 @@ for i in range(3):
 
 The output should show one `201 Created` response followed by two `200 OK` responses with the same book details for the repeated create requests.
 
+## Error handling
+
+| Code | Cause | Resolution |
+|------|-------|------------|
+| `400` | Validation failure (for example, a malformed ISBN or a non-UUID `Idempotency-Key`) | Check the `errors` array for the failing `field` and `description`, correct the payload, and retry with the same `Idempotency-Key`. |
+| `401` | The JWT is missing, malformed, or expired. | Obtain a new token and retry with the same `Idempotency-Key`. |
+| `409` | A book with this ISBN already exists (for example, you sent the same book data with a *new* key) | Reuse the original `Idempotency-Key` for retries. If the book was genuinely already created, no action is needed. |
+| `429` | Rate limit exceeded (for example, 150 requests per minute) | Wait until the time in the `X-RateLimit-Reset` header, then retry with the same `Idempotency-Key`. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits). |
+
+For full error schemas, see [Error codes](/reference/reference-api-endpoints#error-codes).
+
 ## Next steps
 
 Explore related topics:
@@ -149,7 +177,7 @@ Explore related topics:
 
 ### Reference
 
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 
 ---

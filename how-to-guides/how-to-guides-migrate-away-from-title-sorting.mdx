@@ -2,9 +2,10 @@
 title: 'Migrate away from title sorting'
 description: 'Update your code so it no longer uses title sorting in BookHub Publisher API v2.'
 keywords: ['migration', 'sort by title', 'sorting changes', 'migration guide', 'create date sorting', 'client side sorting', 'handle sorting errors', 'create date', 'update date', 'current page', 'total pages', 'total items', 'items per page']
+docType: how-to
 ---
 
-import Prerequisites from '/snippets/prerequisites';
+import Prerequisites from '/snippets/prerequisites.mdx';
 
 The `GET /v2/books` endpoint no longer supports the `sort=title` parameter. Replace it with `sort=createdDate` or implement client-side sorting.
 
@@ -24,6 +25,8 @@ grep -r "sort=title" .
 grep -r "sort.*title" .
 ```
 
+You should see a list of all instances where `sort=title` or `sort.*title` appears.
+
 ## Step 2: Replace with `sort=createdDate` or client-side sorting
 
 To update your code, replace any instances of `sort=title` with either `sort=createdDate` or client-side sorting. Option A uses the API's `sort=createdDate` parameter to return results pre-sorted. Option B fetches unsorted results and sorts them in your application code. Here are examples of both approaches:
@@ -42,7 +45,7 @@ response = requests.get(f"{BASE_URL}/v2/books", params={"sort": "createdDate", "
 
 ### After (v2) option B: client-side sorting
 
-<Important>Client-side sorting requires fetching all books. For large catalogs, this may hit rate limits (150 requests per minute) or impact performance. Use `sort=createdDate` where possible.</Important>
+<Warning>Client-side sorting requires fetching all books. For large catalogs, this may hit rate limits (150 requests per minute) or impact performance. Use `sort=createdDate` where possible.</Warning>
 
 When fetching books, you can sort them by title on the client side after retrieving the data. Here's an example of how to do this in Python:
 
@@ -107,19 +110,11 @@ A successful `GET /v2/books` request using `sort=createdDate` returns `200 OK`:
 }
 ```
 
-Passing `order=desc` returns books newest first, `order=asc` for oldest first. If your code still passes `sort=title`, v2 returns a `400` error:
+Passing `order=desc` returns books newest first, `order=asc` for oldest first. 
 
-```json
-{
-  "status": "error",
-  "message": "Invalid sort parameter",
-  "errors": [{"field": "sort", "error": "INVALID_VALUE"}]
-}
-```
+See [Get all books](/reference/reference-api-endpoints#get-all-books) for all available parameter values.
 
-See [API endpoints](/reference/reference-api-endpoints#get-all-books) for all available parameter values and the full error response.
-
-## Step 3: Test your changes
+## Step 3: Verify your changes
 
 Send a test request and confirm the response returns `200 OK` with books ordered by `createdDate`. For catalogs larger than 100 books, run the pagination test from [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) to verify all pages return correctly.
 
@@ -130,18 +125,72 @@ curl -X GET "https://api.bookhub.com/api/v2/books?sort=createdDate&order=desc" \
 
 Verify the first book in the response has the most recent `createdDate`.
 
+If your code still passes `sort=title`, v2 returns a `400` error:
+
+```json
+{
+  "status": "error",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "sort",
+      "error": "INVALID_VALUE",
+      "description": "sort must be createdDate. Title sorting was removed in v2.",
+      "validation_context": {
+        "rule": "allowed_values",
+        "constraint": {
+          "allowed": [
+            "createdDate"
+          ]
+        },
+        "provided_value": "title"
+      }
+    }
+  ]
+}
+```
+Then handle it in your code:
+
+```python
+import requests
+BASE_URL = "https://api.bookhub.com/api"
+
+def get_books(sort_by='createdDate', order='desc', retry=True):
+    # retry=False prevents infinite loops if the fallback also fails 
+    params = {'sort': sort_by, 'order': order}
+    response = requests.get(f"{BASE_URL}/v2/books", params=params)
+    
+    if response.status_code == 400 and retry:
+        error_data = response.json()
+        errors = error_data.get('errors', [])
+        for error in errors:
+            if error.get('field') == 'sort':
+                print(f"Invalid sort parameter: {error.get('description')}")
+                return get_books(sort_by='createdDate', order=order, retry=False)
+    
+    return response.json()
+```
+
+### Error handling
+
+| Code  | Cause                                                          | Resolution                                                              |
+|-------|----------------------------------------------------------------|-------------------------------------------------------------------------|
+| `400` | Bad request (for example, sorting by `title` is invalid)       | Use `createdDate` for sorting instead.                                  |
+| `401` | Unauthorized (for example, a missing or invalid JWT)           | If you receive a `401`, check your JWT and try again.                   |
+| `429` | Rate limit exceeded (for example, 150 requests per minute)     | Wait until the time in the `X-RateLimit-Reset` header, then retry. See [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits). |
+
 ## Next steps
 
 Explore related topics:
 
 ### How-to guides
 
-* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new endpoints and features.
+* [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
 ### Reference
 
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 * [Breaking changes in v2](/reference/reference-breaking-changes) &mdash; Details all breaking changes in v2 of the BookHub Publisher API.
-* [API endpoints](/reference/reference-api-endpoints) &mdash; Explore all available API endpoints and their parameters.
-* [Code examples](/reference/reference-code-examples) &mdash; Copy working code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
+* [API endpoints](/reference/reference-api-endpoints) &mdash; Provides additional information about the BookHub Publisher API v2 endpoints, including business rules.
+* [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 
 ---

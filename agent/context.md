@@ -9,19 +9,19 @@ This file provides static grounding content for the BookHub Publisher API agent.
 `base_url`    https://api.bookhub.com/api/v2
 `docs_url`    https://galejames.mintlify.app
 `status_url`  https://status.bookhub.com
-`support`     support@bookhub.com
+`support`     For API access or token issues, contact api-support@bookhub.com. For other issues, contact support@bookhub.com.
 
 ## Authentication answer from here first
 
 The API uses JWT Bearer token authentication. All requests must include:
 
 ```http
-Authorization: Bearer {api_key}
+Authorization: Bearer {jwt}
 ```
 
 JWT tokens are obtained by emailing api-support@bookhub.com. Tokens expire after 24 hours and must be renewed by emailing api-support@bookhub.com again.
 
-There is no OAuth flow in v2. Third-party integrations should use a dedicated key with the minimum required scopes.
+There is no OAuth flow and no scopes in v2 — a JWT grants full access to the publisher account. Treat tokens as high-privilege secrets.
 
 ## Rate limits do not guess — use only these values
 
@@ -36,7 +36,7 @@ Rate limit headers returned on every response:
 ## Error codes answer from here first
 
 | Status code | Meaning                                                                                           |
-| --------------------------------------------------------------------------------------------------------------- |
+| ------------|-------------------------------------------------------------------------------------------------- |
 | `400`       | Bad request — invalid field value or status transition or missing required Idempotency-Key header. |
 | `401`       | Unauthorized — missing or invalid JWT.                                                            |
 | `404`       | Not found — `bookId` does not exist.                                                              |
@@ -49,15 +49,22 @@ All errors return a consistent envelope:
 {
   "status": "error",
   "message": "string",
-  "errors": [{"field": "string", "error": "string", "description": "string"}]
+  "errors": [{
+    "field": "string",
+    "error": "string",
+    "description": "string",
+    "validation_context": {"rule": "string", "constraint": {}, "provided_value": "string"}
+  }]
 }
 ```
+
+`validation_context` appears on field-validation (`400`) errors; `401`, `409`, and `429` return only `status` and `message`.
 
 ## Key concepts
 
 ### Publisher account
 
-The top-level entity. All books, metadata, and sales data belong to a publisher account. API keys are scoped to one account.
+The top-level entity. All books, metadata, and sales data belong to a publisher account. JWTs are scoped to one publisher account.
 
 ### Book
 
@@ -65,7 +72,12 @@ A book resource represents a single title. It has a canonical `bookId` (UUID) us
 
 ### Book status lifecycle
 
-Books are created with PENDING status. Use PATCH /v2/books/{bookId}/finalize to set status to ACTIVE. Only INACTIVE books can be deleted.
+Books are created with `PENDING` status.
+
+- `PENDING` → `ACTIVE`: finalize (`PATCH /v2/books/{bookId}/finalize`)
+- `ACTIVE` → `INACTIVE`: deactivate (`PATCH /v2/books/{bookId}/deactivate`)
+- `INACTIVE` → `ACTIVE`: finalize again (reactivates a previously deactivated book)
+- `INACTIVE` → deleted: `DELETE /v2/books/{bookId}` (only `INACTIVE` books can be deleted)
 
 ## `hitCount` behavior
 
@@ -73,7 +85,7 @@ Books are created with PENDING status. Use PATCH /v2/books/{bookId}/finalize to 
 
 ## Idempotency
 
-The `Idempotency-Key` header (UUID) is required on `POST /v2/books`. Requests without it return `400`. Reusing a key within its 24-hour validity window returns `200` with the existing book instead of creating a duplicate. Keys match on the key value only, not the request body &mdash; a new key with the same book data creates a new book.
+The `Idempotency-Key` header (UUID) is required on POST /v2/books; omitting it returns `400`. Reusing a key within its 24-hour validity window returns `200` with the existing book (message: `Book already created`) instead of creating a duplicate. Keys match on the key value only, not the request body &mdash; a new key with the same book data creates a new book.
 
 ## SDKs
 
@@ -148,6 +160,8 @@ For full details see [Handle pagination](/how-to-guides/how-to-guides-handle-pag
 - Added `DELETE /v2/books/{bookId}` endpoint.
 - The `POST /v2/books` endpoint now requires an `Idempotency-Key` header to prevent duplicate book creation on retries.
 - Duplicate ISBNs are rejected with `409 Conflict`. v1 did not enforce ISBN uniqueness.
+- Added `PATCH /v2/books/{bookId}/deactivate` endpoint (changes `ACTIVE` to `INACTIVE`).
+- `PATCH /v2/books/{bookId}/finalize` now accepts `INACTIVE` books, reactivating previously deactivated titles.
 
 ### v1 - Initial release
 
