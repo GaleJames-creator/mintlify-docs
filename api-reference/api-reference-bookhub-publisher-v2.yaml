@@ -44,6 +44,7 @@ components:
       schema:
         type: string
         format: uuid
+        example: "550e8400-e29b-41d4-a716-446655440000"
     RequestId:
       name: X-Request-ID
       in: header
@@ -197,23 +198,22 @@ components:
           type: string
           maxLength: 255
           description: Book title
+          example: "The Great Adventure"
         author:
           type: string
           maxLength: 255
           description: Primary author name
+          example: "Jane Smith"
         description:
           type: string
           maxLength: 5000
           description: Book description or synopsis
-        language:
-          type: string
-          pattern: '^[a-z]{2}(-[A-Z]{2})?$'
-          description: ISO 639-1 language code (e.g., en, en-US)
-          example: en-US
+          example: "An epic tale of courage and discovery"
         publisher:
           type: string
           maxLength: 255
           description: Publisher name
+          example: "Adventure Books Inc"
         publishedDate:
           type: string
           format: date

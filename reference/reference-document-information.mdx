@@ -8,7 +8,7 @@ docType: overview
 | Property                | Value                            |
 |-------------------------|----------------------------------|
 | **Version**             | 2.0                              |
-| **Last Updated**        | July 25, 2026                    |
+| **Last Updated**        | July 27, 2026                    |
 | **API Base URL**        | `https://api.bookhub.com/api`    |
 | **v1 Endpoint**         | `https://api.bookhub.com/api/v1` |
 | **v2 Endpoint**         | `https://api.bookhub.com/api/v2` |
@@ -16,6 +16,13 @@ docType: overview
 | **Status**              | Current                          |
 
 ## Documentation changelog
+
+### July 27, 2026
+
+**Interactive API playground**
+
+* Added an interactive "Try it" playground to the API reference, backed by a hosted Prism mock server that returns the documented example responses. Wired the mock as the default server and noted in the API description that requests are mock-backed and non-persistent.
+* Added `example` values to the remaining `BaseBook` fields (`title`, `author`, `description`, `publisher`) and the `Idempotency-Key` parameter so the Create playground pre-fills a complete, valid request out of the box.
 
 ### July 25, 2026
 
