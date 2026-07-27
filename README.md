@@ -12,7 +12,7 @@ The BookHub Publisher API project shows how to design, document, and deliver a R
 
 ## Deliverable
 
-The live site includes the full documentation suite built on Mintlify, with an interactive "Try it" playground. The interactive playground is backed by a mock server: requests return documented example responses and don't persist. Visitors can enter any value (for example, `test`) in the **Authorization** field to try a request.
+The live site includes the full documentation suite built on Mintlify, with an interactive "Try it" playground. The interactive playground is backed by a mock server: requests return documented example responses and don't persist. Visitors can enter any value (for example, `test`) in the **Authorization** field to try a request; for write endpoints, fill the required fields shown.
 
 The suite covers a quickstart guide, how-to guides, reference docs, and conceptual guides.
 
