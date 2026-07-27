@@ -5,7 +5,7 @@ info:
     BookHub's Publisher API enables programmatic management of book inventory on the BookHub marketplace. 
     This API uses path-based versioning (v2) and requires authentication via JWTs.
 
-    > The interactive "Try it" playground is backed by a mock server. Requests return documented example responses and do not persist — creating a book won't add it to later results.
+    > The interactive "Try it" playground is backed by a mock server: requests return documented example responses and don't persist. Enter any value (for example, `test`) in the **Authorization** field to try a request.
   version: '2.0.1'
   contact:
     name: BookHub API Support
