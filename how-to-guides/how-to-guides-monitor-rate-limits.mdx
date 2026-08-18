@@ -81,7 +81,7 @@ curl -X GET "https://api.bookhub.com/api/v2/books" \
   -v
 ```
 
-Confirm the response includes `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers. The `X-RateLimit-Reset` value is a Unix timestamp — convert it to a human-readable time if needed:
+Confirm the response includes `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers. The `X-RateLimit-Reset` value is a Unix timestamp &mdash; convert it to a human&dash;readable time if needed:
 
 ```python
 import datetime
@@ -113,7 +113,7 @@ Explore related topics:
 * [Rate limit headers](/reference/reference-rate-limit-headers) &mdash; Details on the rate limit headers included in API responses.
 * [Error codes](/reference/reference-api-endpoints#error-codes) &mdash; Complete list of error codes including `429`.
 
-### How-to guides
+### How to guides
 
 * [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) &mdash; Manage large result sets efficiently to minimize API calls.
 * [Cache book details for faster performance](/how-to-guides/how-to-guides-cache-book-details) &mdash; Reduce API calls by caching responses.

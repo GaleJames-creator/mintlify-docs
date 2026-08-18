@@ -1,0 +1,7 @@
+# Repository meta files: frontmatter would render on GitHub
+README.md
+CONTRIBUTING.md
+AGENTS.md
+
+# Assistant system prompts and context, not developer documentation
+agent/

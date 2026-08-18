@@ -1,3 +1,7 @@
+---
+skip-evaluation: true
+---
+
 > **Customize this file**: Tailor this template to your project by noting specific contribution types you're looking for, adding a Code of Conduct, or adjusting the writing guidelines to match your style.
 
 # Contribute to the documentation
@@ -21,8 +25,6 @@ Thank you for your interest in contributing to our documentation! This guide wil
 5. Navigate to the docs directory and run `mint dev`
 6. Preview your changes at `http://localhost:3000`
 7. Commit your changes and submit a pull request
-
-For more details on local development, see our [development guide](development).
 
 ## Writing guidelines
 

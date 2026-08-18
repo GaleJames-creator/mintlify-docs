@@ -13,11 +13,11 @@ All API requests require authentication using a JWT bearer token.
 
 ### Obtaining a token
 
-Tokens are issued manually by BookHub support. To request one, email api-support@bookhub.com with your publisher name, account ID, and contact email.
+Tokens are issued manually by BookHub support. To request one, email api&ndash;support@bookhub.com with your publisher name, account ID, and contact email.
 
 ### Using the token
 
-Replace `YOUR_JWT_TOKEN` with the 24-hour JWT provided by api-support@bookhub.com.
+Replace `YOUR_JWT_TOKEN` with the 24&ndash;hour JWT provided by api&ndash;support@bookhub.com.
 
 ```http
 Authorization: Bearer YOUR_JWT_TOKEN
@@ -28,18 +28,24 @@ curl -X GET https://api.bookhub.com/api/v2/books \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### Token expiration
+### Token expiration and renewal
 
-* Tokens expire in 24 hours and require renewal.
-* A 401 Unauthorized response indicates the token is missing, malformed, or expired.
+Tokens expire 24 hours after they are issued. To renew, email api&ndash;support@bookhub.com with the same details you used to request the original token (publisher name, account ID, and contact email).
 
-### Token renewal
+### Authentication errors
 
-Tokens expire after 24 hours. To renew, email api-support@bookhub.com with your publisher name, account ID, and contact email.
+A request with a missing, malformed, or expired token returns `401 Unauthorized`. Authentication errors return only the `status` and `message` fields &mdash; they do not include the `errors` array used for field-level validation failures.
+
+```json
+{
+  "status": "error",
+  "message": "Unauthorized: the authentication token is missing, malformed, or expired."
+}
+```
 
 ### Token security
 
-Store tokens securely and never expose them in client-side code, version control, or logs. Rotate tokens immediately if compromised by contacting api-support@bookhub.com.
+Store tokens securely and never expose them in client&ndash;side code, version control, or logs. Rotate tokens immediately if compromised by contacting api&ndash;support@bookhub.com.
 
 ## Next steps
 
@@ -48,7 +54,7 @@ Explore related topics:
 ### How-to guides
 
 * [Monitor rate limits](/how-to-guides/how-to-guides-monitor-rate-limits) &mdash; Track your API usage to avoid exceeding rate limits.
-* [Add the Idempotency-Key header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) &mdash; Add the `Idempotency-Key` header to prevent duplicates when creating books.
+* [Add the `Idempotency-Key` header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) &mdash; Add the `Idempotency-Key` header to prevent duplicates when creating books.
 
 ### Reference
 

@@ -18,7 +18,7 @@ import time
 import uuid
 
 BASE_URL = "https://api.bookhub.com/api/v2"
-TOKEN = "your_jwt_token_here"
+TOKEN = "YOUR_JWT_TOKEN"
 
 headers = {
     "Authorization": f"Bearer {TOKEN}",
@@ -92,7 +92,7 @@ The following JavaScript example demonstrates how to retrieve a list of books so
 const axios = require('axios');
 
 const BASE_URL = 'https://api.bookhub.com/api/v2';
-const TOKEN = 'your_jwt_token_here';
+const TOKEN = 'YOUR_JWT_TOKEN';
 
 const headers = {
   'Authorization': `Bearer ${TOKEN}`
@@ -156,7 +156,7 @@ import com.google.gson.*;
 
 public class BookHubV2Client {
     private static final String BASE_URL = "https://api.bookhub.com/api/v2";
-    private static final String TOKEN = "your_jwt_token_here";
+    private static final String TOKEN = "YOUR_JWT_TOKEN";
     
     public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
@@ -215,7 +215,7 @@ The following PHP example demonstrates how to retrieve a list of active books, c
 <?php
 
 $base_url = 'https://api.bookhub.com/api/v2';
-$token = 'your_jwt_token_here';
+$token = 'YOUR_JWT_TOKEN';
 
 $headers = [
     'Authorization: Bearer ' . $token,

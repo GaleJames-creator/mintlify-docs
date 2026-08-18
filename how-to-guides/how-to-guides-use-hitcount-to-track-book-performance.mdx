@@ -7,7 +7,7 @@ docType: how-to
 
 import Prerequisites from '/snippets/prerequisites.mdx';
 
-The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. You can use this to track the popularity and performance of books over time. This guide shows you how to retrieve `hitCount`, rank your catalog by it, and flag high performers — then, optionally, measure a marketing campaign's impact.
+The `hitCount` field in the `BookWithAnalytics` schema provides a count of how many times a book's details have been retrieved via the `GET /v2/books/{bookId}` endpoint. You can use this to track the popularity and performance of books over time. This guide shows you how to retrieve `hitCount`, rank your catalog by it, and flag high performers &mdash; then, optionally, measure a marketing campaign's impact.
 
 Only requests made by buyers increment `hitCount`, providing an accurate reflection of buyer interest in each book. Requests from publishers or cached responses do not affect the count, ensuring that the metric specifically tracks genuine buyer engagement. For details on `hitCount` data type, initial value, update behavior, and availability, see [`hitCount` field explained](/reference/reference-api-endpoints#hitcount-field-explained).
 
@@ -152,7 +152,7 @@ Cooking with Love (123e4567-e89b-41d4-a716-426614174002): 450 views
 
 ## Step 3: Set a performance threshold
 
-To identify high-performing books, you can set a threshold for the `hitCount`. For example, you might want to flag any book with a `hitCount` greater than 1000 as a high performer. You can implement this logic in your code as follows:
+To identify high&ndash;performing books, you can set a threshold for the `hitCount`. For example, you might want to flag any book with a `hitCount` greater than 1000 as a high performer. You can implement this logic in your code as follows:
 
 ```python
 for book in book_performance:
@@ -205,14 +205,14 @@ Explore related topics:
 
 * [Using the `hitCount` field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn how `hitCount` tracks customer interest in specific titles.
 
-### How-to guides
+### How to guides
 
 * [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
 
 ### Reference
 
-* [Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
+* [Track high&ndash;performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
 * [Endpoint coverage for the `hitCount` field](/reference/reference-data-models) &mdash; Learn which BookHub Publisher API endpoints include the `hitCount` field in their responses.
 * [Release notes](/reference/reference-release-notes) &mdash; Explore all changes in BookHub Publisher API v2.
 
