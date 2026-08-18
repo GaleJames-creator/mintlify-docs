@@ -1,3 +1,7 @@
+---
+skip-evaluation: true
+---
+
 # Tools
 
 This file defines the tools available to the BookHub Publisher API agent.

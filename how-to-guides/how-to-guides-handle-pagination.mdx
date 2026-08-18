@@ -21,7 +21,7 @@ Use pagination to limit the number of results per page for a `GET /v2/books` req
 
 To implement pagination with the BookHub Publisher API, construct a request that fetches results in pages using the `page` and `limit` parameters.
 
-The following examples use `page` and `limit` only. The endpoint also accepts `status`, `sort`, and `order` parameters — see [Get all books](/reference/reference-api-endpoints#get-all-books) for details.
+The following examples use `page` and `limit` only. The endpoint also accepts `status`, `sort`, and `order` parameters &mdash; see [Get all books](/reference/reference-api-endpoints#get-all-books) for details.
 
 ```python
 def fetch_all_books(base_url, token):
@@ -30,7 +30,7 @@ def fetch_all_books(base_url, token):
     while True:
         response = requests.get(
             f"{base_url}/v2/books",
-            params={'page': page, 'limit': 100},
+            params={'page': page, 'limit': 20},
             headers={'Authorization': f'Bearer {token}'}
         )
         response.raise_for_status()

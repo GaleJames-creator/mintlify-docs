@@ -8,7 +8,7 @@ docType: overview
 | Property                | Value                            |
 |-------------------------|----------------------------------|
 | **Version**             | 2.0                              |
-| **Last Updated**        | July 27, 2026                    |
+| **Last Updated**        | August 14, 2026                  |
 | **API Base URL**        | `https://api.bookhub.com/api`    |
 | **v1 Endpoint**         | `https://api.bookhub.com/api/v1` |
 | **v2 Endpoint**         | `https://api.bookhub.com/api/v2` |
@@ -16,6 +16,13 @@ docType: overview
 | **Status**              | Current                          |
 
 ## Documentation changelog
+
+### August 18, 2026
+
+**Reference corrections**
+
+* Corrected the `language` field format in [Data models](/reference/reference-data-models) from "ISO 639-1" to "BCP 47 language tag," matching the `en-US` examples used throughout the docs.
+* Corrected the pagination examples in [Handle pagination](/how-to-guides/how-to-guides-handle-pagination) and [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) so each request's `limit` agrees with the `itemsPerPage` and page count in its response (the mismatch had implied an impossible number of pages).
 
 ### July 27, 2026
 

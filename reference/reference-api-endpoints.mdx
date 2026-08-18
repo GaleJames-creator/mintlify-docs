@@ -9,11 +9,15 @@ import IsbnNote from '/snippets/isbn-note.mdx';
 import BookId from '/snippets/bookid.mdx';
 
 
-This section provides additional information about the BookHub Publisher API v2 endpoints, including business rules.
+This page documents endpoint **behavior and business rules** for the BookHub Publisher API v2 &mdash; status transitions, idempotency, pagination limits, and error codes.
+
+For the complete request and response fields (with an interactive playground), see the [API reference](/api-reference/api-reference-overview). For schema objects such as `BaseBook` and `BookWithAnalytics`, see [Data models](/reference/reference-data-models).
 
 ## Create a book
 
 The `POST /v2/books` endpoint creates a new book with `PENDING` status. You must finalize a book to make it visible and available to customers in the marketplace.
+
+See the [Create a book reference](/api-reference/endpoint/createBook) for the complete request headers, body fields, and response schema.
 
 <Note>To avoid creating duplicates, the request requires an `Idempotency-Key` header with a unique value &mdash; if omitted, retried requests may create duplicate books. Optionally, use `X-Request-ID` to track requests in logs and `X-Publisher-ID` to scope the request to a specific publisher account. See [Add the `Idempotency-Key` header](/how-to-guides/how-to-guides-add-the-idempotency-key-header) for details.</Note>
 
@@ -22,7 +26,7 @@ The `POST /v2/books` endpoint creates a new book with `PENDING` status. You must
 ```bash
 curl --request POST \
   --url https://api.bookhub.com/api/v2/books \
-  --header 'Authorization: Bearer <token>' \
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
   --header 'Content-Type: application/json' \
   --header 'Idempotency-Key: <idempotency-key>' \
   --header 'X-Request-ID: <request-id>' \
@@ -76,7 +80,7 @@ Creating a book returns `201 Created`.
 }
 ```
 
-Retrying with a previously used Idempotency-Key (within its 24-hour window) returns `200 OK` with the existing book instead of creating a duplicate.
+Retrying with a previously used   Idempotency-Key  (within its 24-hour window) returns `200 OK` with the existing book instead of creating a duplicate.
 
 ```json
 {
@@ -113,12 +117,14 @@ Retrying with a previously used Idempotency-Key (within its 24-hour window) retu
 
 The `PATCH /v2/books/{bookId}/finalize` endpoint changes book status from `PENDING` or `INACTIVE` to `ACTIVE`, making it visible to customers. A successful finalization returns `200 OK` with the updated book details.
 
+See the [Finalize a book reference](/api-reference/endpoint/finalizeBook) for the complete request body and response schema.
+
 <BookId />
 
 ```bash
 curl --request PATCH \
   --url https://api.bookhub.com/api/v2/books/{bookId}/finalize \
-  --header 'Authorization: Bearer <token>' \
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
   --header 'Content-Type: application/json' \
   --data '
 {
@@ -155,12 +161,14 @@ Returns a `200 OK` response with updated status:
 
 The `GET /v2/books/{bookId}` endpoint retrieves details of a single book by its `bookId`. The response includes the `hitCount` field, which tracks how many times the book detail page has been accessed.
 
+See the [Get a specific book reference](/api-reference/endpoint/getBook) for the complete response schema.
+
 <BookId />
 
 ```bash
 curl --request GET \
   --url https://api.bookhub.com/api/v2/books/{bookId} \
-  --header 'Authorization: Bearer <token>'
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN'
 ```
 
 ### `hitCount` field explained
@@ -188,6 +196,8 @@ Cache-Control: max-age=3600, must-revalidate
 
 The `GET /v2/books` endpoint retrieves a paginated list of books. A successful response returns `200 OK` with a JSON array of books and pagination metadata.
 
+See the [Get all books reference](/api-reference/endpoint/getAllBooks) for the complete query-parameter and response reference.
+
 <Note>
 When sending a request to `GET /v2/books`, the following considerations apply:
 
@@ -199,7 +209,7 @@ When sending a request to `GET /v2/books`, the following considerations apply:
 
 API `pagination` splits large datasets into smaller, manageable chunks. When you request a list of books (e.g., `GET /v2/books`), the API returns the total number of items, the total number of pages, and the current page. 
 
-The server automatically calculates `totalPages` from `totalItems` and `itemsPerPage`; you do not need to compute it. For example, if there are 250 books and the page size is 100, `totalPages` will be 3. The first two pages will return 100 items each, and the last page will return the remaining 50 items. The `GET /v2/books` endpoint also accepts `status`, `sort`, and `order` parameters. 
+For how pagination works conceptually, see [Pagination](/conceptual-guides/conceptual-guides-pagination). The `GET /v2/books` endpoint accepts `page`, `limit`, `status`, `sort`, and `order` parameters and returns `totalItems`, `totalPages`, and `currentPage` in a `pagination` object. 
 
 ```json
 {
@@ -368,12 +378,14 @@ X-RateLimit-Reset: 1735128600
 
 The `PATCH /v2/books/{bookId}/deactivate` endpoint changes the status of an `ACTIVE` book to `INACTIVE` and removes it from the BookHub marketplace without deleting it. Deactivation is a required step before deleting a book.
 
+See the [Deactivate a book reference](/api-reference/endpoint/deactivateBook) for the complete request body and response schema.
+
 <BookId />
 
 ```bash
 curl --request PATCH \
   --url https://api.bookhub.com/api/v2/books/{bookId}/deactivate \
-  --header 'Authorization: Bearer <token>' \
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
   --header 'Content-Type: application/json' \
   --data '
 {
@@ -401,14 +413,16 @@ Returns a `200 OK` response with updated status:
 
 ## Delete a book
 
-The `DELETE /v2/books/{bookId}` endpoint permanently removes `INACTIVE` books from the BookHub marketplace. Deleting a book removes it from search results and future queries, reducing catalog clutter. 
+The `DELETE /v2/books/{bookId}` endpoint permanently removes `INACTIVE` books from the BookHub marketplace. Deleting a book removes it from search results and future queries, reducing catalog clutter.
+
+See the [Delete a book reference](/api-reference/endpoint/deleteBook) for the complete request and response details. 
 
 <BookId />
 
 ```bash
 curl --request DELETE \
   --url https://api.bookhub.com/api/v2/books/{bookId} \
-  --header 'Authorization: Bearer <token>'
+  --header 'Authorization: Bearer YOUR_JWT_TOKEN'
 ```
 
 A successful delete returns a `204 No Content` response with no body.
@@ -427,11 +441,11 @@ Requests that fail field validation include an `errors` array with field-level d
 
 | Status code | Meaning                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------- |
-| `400`       | Bad request — invalid field value or status transition or missing required Idempotency-Key header. |
-| `401`       | Unauthorized — missing or invalid JWT                                                             |
-| `404`       | Not found — `bookId` does not exist                                                               |
-| `409`       | Conflict — a book with this ISBN already exists.                                                   |
-| `429`       | Rate limit exceeded — 150 requests per minute                                                     |
+| `400`       | Bad request &mdash; invalid field value or status transition or missing required Idempotency-Key header. |
+| `401`       | Unauthorized &mdash; missing or invalid JWT                                                             |
+| `404`       | Not found &mdash; `bookId` does not exist                                                               |
+| `409`       | Conflict &mdash; a book with this ISBN already exists.                                                   |
+| `429`       | Rate limit exceeded &mdash; 150 requests per minute                                                     |
 
 ## Next steps
 
@@ -440,9 +454,9 @@ Explore related topics:
 ### Conceptual guides
 
 * [Using the hitCount field for analytics](/conceptual-guides/conceptual-guides-hitcount-analytics) &mdash; Learn how `hitCount` tracks customer interest in specific titles.
-* [Pagination](/conceptual-guides/conceptual-guides-pagination.mdx) &mdash; Understand how pagination works in the BookHub Publisher API.
+* [Pagination](/conceptual-guides/conceptual-guides-pagination) &mdash; Understand how pagination works in the BookHub Publisher API.
 
-### How-to guides
+### How to guides
 
 * [Migrate to BookHub Publisher API v2](/how-to-guides/how-to-guides-migrate-bookhub) &mdash; Update your code to use BookHub Publisher API v2’s new features.
 * [Migrate away from title sorting](/how-to-guides/how-to-guides-migrate-away-from-title-sorting) &mdash; Update your code to remove title sorting in BookHub Publisher API v2.
@@ -450,7 +464,7 @@ Explore related topics:
 
 ### Reference
 
-* [Track high-performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
+* [Track high&ndash;performing books with `hitCount`](/reference/reference-code-examples#track-high-performing-books-with-hitcount) &mdash; Example code for using the `hitCount` field in PHP.
 * [Data models](/reference/reference-data-models) &mdash; Explore schema definitions for BaseBook, BookWithAnalytics, Pagination, and Error response objects in the BookHub Publisher API.
 * [Code examples](/reference/reference-code-examples) &mdash; Copy code samples for book creation, sorting by creation date, handling removed title sorting, and tracking performance with `hitCount`.
 

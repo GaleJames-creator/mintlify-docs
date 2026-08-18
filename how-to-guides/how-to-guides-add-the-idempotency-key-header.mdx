@@ -22,7 +22,7 @@ This guide explains how to add the `Idempotency-Key` header to prevent duplicate
 When you create a new book using the `POST /v2/books` endpoint, you must include a unique `Idempotency-Key` header in your create request. The `Idempotency-Key` must be a UUID. Generate a new one for each distinct book you create. Store the key with the pending request so you can reuse it if the request needs to be retried after a restart or crash.
 
 <Note>
-Reusing the same `Idempotency-Key` returns the original result instead of creating a second book — this is what makes retries safe. Sending the same book data with a *new* key is treated as a new create request, and returns `409 Conflict` because the ISBN already exists.
+Reusing the same `Idempotency-Key` returns the original result instead of creating a second book &mdash; this is what makes retries safe. Sending the same book data with a *new* key is treated as a new create request, and returns `409 Conflict` because the ISBN already exists.
 </Note>
 
 ```python
@@ -77,7 +77,7 @@ except requests.HTTPError as e:
 
 A successful request returns a `201 Created` response with the details of the newly created book. 
 
-<Note>Use a unique `Idempotency-Key` for each distinct book you create — but reuse the same key when retrying a request that may not have completed. The API retains each key for 24 hours. After a key expires, retrying with it is treated as a new create request — which returns `409 Conflict` if the book was already created. Generate a new key only when creating a different book.</Note>
+<Note>Use a unique `Idempotency-Key` for each distinct book you create &mdash; but reuse the same key when retrying a request that may not have completed. The API retains each key for 24 hours. After a key expires, retrying with it is treated as a new create request &mdash; which returns `409 Conflict` if the book was already created. Generate a new key only when creating a different book.</Note>
 
 For error responses including `400`, `401`, `409`, and `429`, see [Error codes](/reference/reference-api-endpoints#error-codes).
 

@@ -1,3 +1,7 @@
+---
+skip-evaluation: true
+---
+
 # Context
 
 This file provides static grounding content for the BookHub Publisher API agent. It is appended to the system prompt at runtime. Keep entries current — outdated facts here will be confidently repeated by the agent.
@@ -122,7 +126,7 @@ def fetch_all_books(base_url, token):
     while True:
         response = requests.get(
             f"{base_url}/v2/books",
-            params={'page': page, 'limit': 100},
+            params={'page': page, 'limit': 20},
             headers={'Authorization': f'Bearer {token}'}
         )
         response.raise_for_status()
