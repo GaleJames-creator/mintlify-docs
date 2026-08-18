@@ -5,3 +5,7 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Agent/instruction metadata — not published docs
+AGENTS.md
+agent/
